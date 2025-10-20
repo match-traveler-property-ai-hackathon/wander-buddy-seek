@@ -3,6 +3,7 @@ import { TravelPlanCard } from "@/components/TravelPlanCard";
 import { RecentSearchItem } from "@/components/RecentSearchItem";
 import { DiscountCard } from "@/components/DiscountCard";
 import { InspiredCard } from "@/components/InspiredCard";
+import { HostelCard } from "@/components/HostelCard";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import { Badge } from "@/components/ui/badge";
 import barcelonaImg from "@/assets/barcelona.jpg";
@@ -20,6 +21,11 @@ import profile2Img from "@/assets/profile2.jpg";
 import profile3Img from "@/assets/profile3.jpg";
 import profile4Img from "@/assets/profile4.jpg";
 import profile5Img from "@/assets/profile5.jpg";
+import hostel1Img from "@/assets/hostel1.jpg";
+import hostel2Img from "@/assets/hostel2.jpg";
+import hostel3Img from "@/assets/hostel3.jpg";
+import hostel4Img from "@/assets/hostel4.jpg";
+import hostel5Img from "@/assets/hostel5.jpg";
 
 const Index = () => {
   return (
@@ -42,8 +48,58 @@ const Index = () => {
       </header>
 
       <main className="max-w-[480px] mx-auto">
-        {/* Travel Plans Section */}
+        {/* Hostels Section */}
         <section className="px-6 py-8 bg-white rounded-t-[2rem] -mt-6 relative z-10">
+          <h2 className="text-2xl font-bold mb-2">Hostels just for you</h2>
+          <p className="text-muted-foreground mb-6 text-sm">
+            Social and pet-friendly hostels in Mexico City
+          </p>
+          <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide">
+            <HostelCard
+              name="Casa Pepe"
+              image={hostel1Img}
+              rating={4.8}
+              distance="1.2 km from centre"
+              price={25}
+              benefits={["Pet-friendly", "Social", "Free WiFi"]}
+            />
+            <HostelCard
+              name="Mexico City Rooftop"
+              image={hostel2Img}
+              rating={4.9}
+              distance="0.8 km from centre"
+              price={32}
+              benefits={["Pet-friendly", "Rooftop terrace", "Kitchen"]}
+            />
+            <HostelCard
+              name="La Casa Colorida"
+              image={hostel3Img}
+              rating={4.7}
+              distance="1.5 km from centre"
+              price={28}
+              benefits={["Pet-friendly", "Social", "Bar"]}
+            />
+            <HostelCard
+              name="Green Garden Hostel"
+              image={hostel4Img}
+              rating={4.9}
+              distance="2.1 km from centre"
+              price={30}
+              benefits={["Pet-friendly", "Eco-friendly", "Garden"]}
+            />
+            <HostelCard
+              name="Colonial Charm"
+              image={hostel5Img}
+              rating={4.6}
+              distance="1.8 km from centre"
+              price={27}
+              benefits={["Pet-friendly", "Historic building", "Courtyard"]}
+            />
+          </div>
+        </section>
+
+        {/* Travel Plans Section */}
+        <section className="px-6 py-8">
           <div className="flex items-center gap-3 mb-3">
             <h2 className="text-2xl font-bold">Travel Plans</h2>
             <Badge className="bg-primary text-white hover:bg-primary rounded-full px-3 py-1 text-xs font-bold">
