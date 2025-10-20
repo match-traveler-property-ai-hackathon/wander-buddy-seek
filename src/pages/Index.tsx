@@ -9,6 +9,9 @@ import barcelonaImg from "@/assets/barcelona.jpg";
 import sydneyImg from "@/assets/sydney.jpg";
 import londonImg from "@/assets/london.jpg";
 import berlinImg from "@/assets/berlin.jpg";
+import londonDiscountImg from "@/assets/london-discount.jpg";
+import beijingImg from "@/assets/beijing.jpg";
+import mexicoCityImg from "@/assets/mexico-city.jpg";
 import profileImg from "@/assets/profile.jpg";
 import profile2Img from "@/assets/profile2.jpg";
 import profile3Img from "@/assets/profile3.jpg";
@@ -111,6 +114,9 @@ const Index = () => {
           <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide">
             <DiscountCard city="Barcelona" image={barcelonaImg} />
             <DiscountCard city="Sydney" image={sydneyImg} />
+            <DiscountCard city="London" image={londonDiscountImg} />
+            <DiscountCard city="Beijing" image={beijingImg} />
+            <DiscountCard city="Mexico City" image={mexicoCityImg} />
           </div>
         </section>
 
