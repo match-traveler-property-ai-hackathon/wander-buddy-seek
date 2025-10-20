@@ -12,6 +12,9 @@ import berlinImg from "@/assets/berlin.jpg";
 import londonDiscountImg from "@/assets/london-discount.jpg";
 import beijingImg from "@/assets/beijing.jpg";
 import mexicoCityImg from "@/assets/mexico-city.jpg";
+import amsterdamImg from "@/assets/amsterdam.jpg";
+import romeImg from "@/assets/rome.jpg";
+import lisbonImg from "@/assets/lisbon.jpg";
 import profileImg from "@/assets/profile.jpg";
 import profile2Img from "@/assets/profile2.jpg";
 import profile3Img from "@/assets/profile3.jpg";
@@ -129,6 +132,9 @@ const Index = () => {
           <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide">
             <InspiredCard city="London" image={londonImg} />
             <InspiredCard city="Berlin" image={berlinImg} />
+            <InspiredCard city="Amsterdam" image={amsterdamImg} />
+            <InspiredCard city="Rome" image={romeImg} />
+            <InspiredCard city="Lisbon" image={lisbonImg} />
           </div>
         </section>
       </main>
