@@ -10,6 +10,10 @@ import sydneyImg from "@/assets/sydney.jpg";
 import londonImg from "@/assets/london.jpg";
 import berlinImg from "@/assets/berlin.jpg";
 import profileImg from "@/assets/profile.jpg";
+import profile2Img from "@/assets/profile2.jpg";
+import profile3Img from "@/assets/profile3.jpg";
+import profile4Img from "@/assets/profile4.jpg";
+import profile5Img from "@/assets/profile5.jpg";
 
 const Index = () => {
   return (
@@ -56,8 +60,31 @@ const Index = () => {
               date="Oct 2025"
               country="Italy"
               flagEmoji="🇮🇹"
-              userImage={profileImg}
+              userImage={profile2Img}
               commentCount={1}
+            />
+            <TravelPlanCard
+              destination="Europe train trip"
+              date="Sep 2025"
+              country="Europe"
+              flagEmoji="🇪🇺"
+              userImage={profile3Img}
+              commentCount={3}
+            />
+            <TravelPlanCard
+              destination="Bali surftrip"
+              date="Dec 2025"
+              country="Indonesia"
+              flagEmoji="🇮🇩"
+              userImage={profile4Img}
+            />
+            <TravelPlanCard
+              destination="South india + Sri Lanka"
+              date="Jan 2026"
+              country="India & Sri Lanka"
+              flagEmoji="🇮🇳"
+              userImage={profile5Img}
+              commentCount={2}
             />
           </div>
           <button className="text-primary font-semibold mt-4 text-sm">See all</button>
