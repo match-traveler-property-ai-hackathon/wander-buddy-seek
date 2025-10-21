@@ -29,7 +29,7 @@ export const HostelCard = ({
 
   return (
     <Card 
-      className="min-w-[320px] md:min-w-0 overflow-hidden border-0 shadow-[var(--shadow-card)] rounded-2xl hover:shadow-lg transition-shadow cursor-pointer"
+      className="md:min-w-[320px] overflow-hidden border-0 shadow-[var(--shadow-card)] rounded-2xl hover:shadow-lg transition-shadow cursor-pointer"
       onClick={handleClick}
     >
       <div className="relative h-48 overflow-hidden">

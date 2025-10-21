@@ -222,9 +222,9 @@ const Index = () => {
             {profileLoading ? 'Loading your preferences...' : 'Personalized hostels based on your profile'}
           </p>
           {(isSearching || profileLoading) && displayHostels.length === 0 ? (
-            <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide">
+            <div className="grid grid-cols-1 md:flex md:gap-4 md:overflow-x-auto gap-4 pb-4 md:-mx-6 md:px-6 scrollbar-hide">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="min-w-[320px] space-y-3">
+                <div key={i} className="md:min-w-[320px] space-y-3">
                   <Skeleton className="h-48 w-full rounded-2xl" />
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-4 w-1/2" />
@@ -232,7 +232,7 @@ const Index = () => {
               ))}
             </div>
           ) : (
-            <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide">
+            <div className="grid grid-cols-1 md:flex md:gap-4 md:overflow-x-auto gap-4 pb-4 md:-mx-6 md:px-6 scrollbar-hide">
               {displayHostels.map((hostel, index) => (
                 <HostelCard
                   key={index}
