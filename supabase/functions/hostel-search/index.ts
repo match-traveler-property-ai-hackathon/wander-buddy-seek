@@ -13,24 +13,32 @@ const MCP_SERVER_URL = 'https://test.apigee.hostelworld.com/inventory-mcp-servic
 let mcpToolsCache: { tools: any[], timestamp: number } | null = null;
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-// Retry with exponential backoff for rate limiting
+// Retry with exponential backoff for rate limiting (with reasonable caps)
 async function fetchWithRetry(
   url: string,
   options: RequestInit,
-  maxRetries = 3
+  maxRetries = 2,
+  isToolResultCall = false
 ): Promise<Response> {
   let lastError: Error | null = null;
+  const MAX_WAIT_TIME = 30000; // Cap wait time at 30 seconds
   
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       const response = await fetch(url, options);
       
-      // If rate limited, wait and retry
+      // If rate limited, wait and retry (but not for tool result calls to save time)
       if (response.status === 429) {
+        if (isToolResultCall) {
+          console.log('Rate limited on tool result call, not retrying to avoid timeout');
+          return response; // Return the 429 response instead of retrying
+        }
+        
         const retryAfter = response.headers.get('retry-after');
-        const waitTime = retryAfter 
-          ? parseInt(retryAfter) * 1000 
-          : Math.min(1000 * Math.pow(2, attempt), 10000); // Exponential backoff, max 10s
+        // Cap retry-after to MAX_WAIT_TIME, and use exponential backoff otherwise
+        let waitTime = retryAfter 
+          ? Math.min(parseInt(retryAfter) * 1000, MAX_WAIT_TIME)
+          : Math.min(1000 * Math.pow(2, attempt), 10000);
         
         console.log(`Rate limited (429). Retrying in ${waitTime}ms (attempt ${attempt + 1}/${maxRetries})`);
         
@@ -46,7 +54,7 @@ async function fetchWithRetry(
       console.error(`Attempt ${attempt + 1}/${maxRetries} failed:`, error);
       
       if (attempt < maxRetries - 1) {
-        const waitTime = Math.min(1000 * Math.pow(2, attempt), 10000);
+        const waitTime = Math.min(1000 * Math.pow(2, attempt), 5000); // Max 5s for network errors
         await new Promise(resolve => setTimeout(resolve, waitTime));
       }
     }
@@ -361,15 +369,20 @@ Return only the JSON array, no markdown or explanation.`;
         tools: mcpTools
       };
       
-      const finalResponse = await fetchWithRetry('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'x-api-key': ANTHROPIC_API_KEY,
-          'anthropic-version': '2023-06-01',
-          'content-type': 'application/json',
+      const finalResponse = await fetchWithRetry(
+        'https://api.anthropic.com/v1/messages', 
+        {
+          method: 'POST',
+          headers: {
+            'x-api-key': ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify(finalRequest),
         },
-        body: JSON.stringify(finalRequest),
-      });
+        2,
+        true // This is a tool result call, skip retries on 429 to avoid timeout
+      );
       
       if (!finalResponse.ok) {
         const errorText = await finalResponse.text();
