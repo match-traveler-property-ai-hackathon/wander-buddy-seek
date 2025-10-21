@@ -232,17 +232,19 @@ const Index = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6 md:mb-8">
             <div className="flex items-center gap-4">
-              <div className="flex flex-col items-center gap-2">
-                <img 
-                  src={hostelworldLogo} 
-                  alt="Hostelworld" 
-                  className="w-12 h-12 md:w-14 md:h-14"
-                />
+              <div className="flex flex-col items-start gap-3">
+                <div className="flex items-center gap-4">
+                  <img 
+                    src={hostelworldLogo} 
+                    alt="Hostelworld" 
+                    className="w-10 h-10 md:w-12 md:h-12"
+                  />
+                  <h1 className="text-white text-xl md:text-3xl font-bold">
+                    Your next adventure starts here!
+                  </h1>
+                </div>
                 <DesktopNavigation />
               </div>
-              <h1 className="text-white text-2xl md:text-4xl font-bold max-w-[250px] md:max-w-xl">
-                Your next adventure starts here!
-              </h1>
             </div>
             <img
               src={profileImg}
