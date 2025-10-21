@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Search, Loader2, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { Search, Loader2, ChevronLeft, ChevronRight, Sparkles, Building2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMcpHostelSearch } from "@/hooks/useMcpHostelSearch";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -250,7 +250,10 @@ const Index = () => {
         {/* Hostels Section */}
         <section className="py-8 md:py-12 mb-6 bg-white rounded-t-[2rem] rounded-b-2xl -mt-6 relative z-10">
           <div className="px-6 mb-6 md:mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold mb-2">Hostels just for you</h2>
+            <div className="flex items-center gap-2 mb-2">
+              <h2 className="text-2xl md:text-3xl font-bold">Hostels just for you</h2>
+              <Building2 className="h-6 w-6 md:h-7 md:w-7 text-primary" />
+            </div>
             <p className="text-muted-foreground text-sm md:text-base">
               {profileLoading ? 'Loading your preferences...' : 'Personalized hostels based on your profile'}
             </p>
