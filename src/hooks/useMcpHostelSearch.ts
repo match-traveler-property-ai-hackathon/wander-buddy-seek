@@ -79,8 +79,9 @@ export const useMcpHostelSearch = () => {
           setProfileRecommendations(data.mcpResponse);
         } else {
           setAiSearchResults(data.mcpResponse);
+          // Set to complete immediately when results are available
+          setSearchStage('complete');
         }
-        setSearchStage('complete');
         return { success: true, message: 'Results found' };
       } else {
         return { success: false, message: 'No MCP response' };
@@ -99,7 +100,8 @@ export const useMcpHostelSearch = () => {
       };
     } finally {
       setIsSearching(false);
-      setSearchStage('complete');
+      // Only set complete if not already set (from successful results)
+      setSearchStage(prev => prev === 'complete' ? prev : 'complete');
     }
   };
 
