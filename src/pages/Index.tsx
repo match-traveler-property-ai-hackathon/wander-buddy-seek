@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMcpHostelSearch } from "@/hooks/useMcpHostelSearch";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { buildProfileQuery } from "@/utils/profileQuery";
+import { McpInspector } from "@/components/McpInspector";
 import barcelonaImg from "@/assets/barcelona.jpg";
 import sydneyImg from "@/assets/sydney.jpg";
 import londonImg from "@/assets/london.jpg";
@@ -407,6 +408,8 @@ const Index = () => {
       <div className="md:hidden">
         <BottomNavigation />
       </div>
+
+      <McpInspector />
     </div>
   );
 };
