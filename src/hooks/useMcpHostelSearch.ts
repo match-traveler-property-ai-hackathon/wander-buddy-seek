@@ -3,7 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 
 export const useMcpHostelSearch = () => {
   const [isSearching, setIsSearching] = useState(false);
-  const [searchStage, setSearchStage] = useState<'ai' | 'mcp' | 'sorting' | 'complete'>('ai');
+  const [searchStage, setSearchStage] = useState<'ai' | 'mcp' | 'sorting' | 'complete' | 'error'>('ai');
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [profileRecommendations, setProfileRecommendations] = useState<any>(null);
   const [aiSearchResults, setAiSearchResults] = useState<any>(null);
 
@@ -12,6 +13,7 @@ export const useMcpHostelSearch = () => {
 
     setIsSearching(true);
     setSearchStage('ai');
+    setSearchError(null);
     
     // Clear previous search results when starting a new search
     if (!profileBased) {
@@ -47,6 +49,9 @@ export const useMcpHostelSearch = () => {
       // Handle rate limiting (429 status)
       if (response.status === 429 || data?.rateLimited) {
         console.log('Rate limited - request throttled');
+        const errorMsg = data?.error || 'Rate limit exceeded. Please wait a moment and try again.';
+        setSearchStage('error');
+        setSearchError(errorMsg);
         if (profileBased) {
           setProfileRecommendations(null);
         } else {
@@ -54,7 +59,7 @@ export const useMcpHostelSearch = () => {
         }
         return { 
           success: false, 
-          message: data?.error || 'Rate limit exceeded. Please wait a moment and try again.',
+          message: errorMsg,
           rateLimited: true 
         };
       }
@@ -62,15 +67,20 @@ export const useMcpHostelSearch = () => {
       // Handle other errors
       if (!response.ok) {
         console.error('Search error:', response.status, data);
+        const errorMsg = data?.error || `Request failed with status ${response.status}`;
+        setSearchStage('error');
+        setSearchError(errorMsg);
         return {
           success: false,
-          message: data?.error || `Request failed with status ${response.status}`,
+          message: errorMsg,
           rateLimited: false
         };
       }
 
       if (data?.message === "No results found on Inv MCP") {
         console.log('No results found on Inv MCP');
+        setSearchStage('error');
+        setSearchError('No results found');
         if (profileBased) {
           setProfileRecommendations(null);
         } else {
@@ -94,6 +104,9 @@ export const useMcpHostelSearch = () => {
       }
     } catch (error) {
       console.error('Error in MCP hostel search:', error);
+      const errorMsg = 'Search failed. Please try again.';
+      setSearchStage('error');
+      setSearchError(errorMsg);
       if (profileBased) {
         setProfileRecommendations(null);
       } else {
@@ -101,13 +114,13 @@ export const useMcpHostelSearch = () => {
       }
       return {
         success: false,
-        message: 'Search failed. Please try again.',
+        message: errorMsg,
         rateLimited: false
       };
     } finally {
       setIsSearching(false);
-      // Only set complete if not already set (from successful results)
-      setSearchStage(prev => prev === 'complete' ? prev : 'complete');
+      // Only set complete/error if not already set
+      setSearchStage(prev => ['complete', 'error'].includes(prev) ? prev : 'complete');
     }
   };
 
@@ -115,6 +128,7 @@ export const useMcpHostelSearch = () => {
     searchHostels,
     isSearching,
     searchStage,
+    searchError,
     profileRecommendations,
     aiSearchResults
   };

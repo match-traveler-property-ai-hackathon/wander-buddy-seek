@@ -77,6 +77,7 @@ const Index = () => {
     searchHostels, 
     isSearching, 
     searchStage,
+    searchError,
     profileRecommendations,
     aiSearchResults
   } = useMcpHostelSearch();
@@ -506,7 +507,7 @@ const Index = () => {
           {/* Search Progress */}
           {isSearching && (
             <div className="mt-6">
-              <SearchProgress currentStage={searchStage} />
+              <SearchProgress currentStage={searchStage} errorMessage={searchError} />
             </div>
           )}
 
