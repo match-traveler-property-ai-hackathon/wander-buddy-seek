@@ -502,6 +502,32 @@ const Index = () => {
                   </div>
                 )}
 
+                {/* Frontend Mapping Result Section */}
+                {searchResults.length > 0 && (
+                  <div>
+                    <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-primary" />
+                      Frontend Mapping Result
+                    </h3>
+                    <div className="bg-muted rounded-lg p-4 overflow-x-auto">
+                      <pre className="text-xs text-foreground whitespace-pre-wrap">
+                        {JSON.stringify({
+                          propertyType: searchResults.map(hostel => ({
+                            id: hostel.id,
+                            name: hostel.name,
+                            price: hostel.price,
+                            image: hostel.image,
+                            facilities: hostel.benefits,
+                            bookingLink: hostel.bookingLink,
+                            rating: hostel.rating,
+                            distance: hostel.distance
+                          }))
+                        }, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                )}
+
                 {/* Raw MCP Response Section */}
                 <div>
                   <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
