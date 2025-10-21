@@ -373,14 +373,14 @@ const Index = () => {
             </button>
             <button 
               onClick={() => {
-                const query = "Hostels on the mediterranean with a surf school nearby";
+                const query = "Hostels on the mediterranean";
                 setSearchQuery(query);
                 handleSearch(query);
               }}
               disabled={isSearching}
               className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors disabled:opacity-50 whitespace-nowrap"
             >
-              Hostels on the mediterranean with a surf school nearby
+              Hostels on the mediterranean
             </button>
           </div>
         </section>
