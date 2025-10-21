@@ -324,11 +324,15 @@ Return only the JSON array, no markdown or explanation.`;
           
           const mcpResult = await mcpToolResponse.json();
           console.log('MCP tool result received');
+          console.log('MCP result structure:', JSON.stringify(mcpResult, null, 2).substring(0, 500));
           
           // Check for valid structured content
           if (mcpResult.result?.structuredContent) {
             mcpResponse = mcpResult.result;
             console.log('Found valid MCP response with structuredContent');
+            console.log('structuredContent keys:', Object.keys(mcpResult.result.structuredContent));
+            console.log('Has hostels?:', !!mcpResult.result.structuredContent.hostels);
+            console.log('Has results?:', !!mcpResult.result.structuredContent.results);
             break; // We found valid results, stop processing
           }
         } catch (toolError) {

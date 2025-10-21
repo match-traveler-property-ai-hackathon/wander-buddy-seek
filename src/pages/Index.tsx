@@ -136,9 +136,9 @@ const Index = () => {
   // Process MCP response and map to hostel card format
   const displayHostels = useMemo(() => {
     console.log('MCP Response:', mcpResponse);
-    console.log('Hostels from response:', mcpResponse?.structuredContent?.results?.[0]?.hostels);
+    console.log('Hostels from response:', mcpResponse?.structuredContent?.hostels);
     
-    const mapped = mcpResponse?.structuredContent?.results?.[0]?.hostels?.map((hostel: any) => {
+    const mapped = mcpResponse?.structuredContent?.hostels?.map((hostel: any) => {
       console.log('Mapping hostel:', hostel.name, hostel);
       return {
         id: hostel.id,
@@ -540,7 +540,7 @@ const Index = () => {
                 )}
 
                 {/* Raw MCP Response Section - Only hostels */}
-                {searchResults.length > 0 && mcpResponse?.structuredContent?.results?.[0]?.hostels && (
+                {searchResults.length > 0 && mcpResponse?.structuredContent?.hostels && (
                   <div>
                     <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
                       <Sparkles className="h-5 w-5 text-primary" />
@@ -548,7 +548,7 @@ const Index = () => {
                     </h3>
                     <div className="bg-muted rounded-lg p-4 overflow-x-auto">
                       <pre className="text-xs text-foreground whitespace-pre-wrap">
-                        {JSON.stringify(mcpResponse.structuredContent.results[0].hostels, null, 2)}
+                        {JSON.stringify(mcpResponse.structuredContent.hostels, null, 2)}
                       </pre>
                     </div>
                   </div>
