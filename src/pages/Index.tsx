@@ -452,36 +452,67 @@ const Index = () => {
             const mappedHostels = mapMcpToHostels();
 
             return (
-              <div className="mt-8">
-                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  AI Search Results
-                </h3>
-                {mappedHostels.length > 0 ? (
-                  <Carousel className="w-full">
-                    <CarouselContent>
-                      {mappedHostels.map((hostel, index) => (
-                        <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                          <HostelCard
-                            name={hostel.name}
-                            image={hostel.image}
-                            rating={hostel.rating}
-                            distance={hostel.distance}
-                            price={hostel.price}
-                            benefits={hostel.benefits}
-                            bookingLink={hostel.bookingLink}
-                          />
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
-                  </Carousel>
-                ) : (
-                  <div className="bg-muted rounded-lg p-4">
-                    <p className="text-sm text-muted-foreground">No hostels found. Try adjusting your search.</p>
+              <div className="mt-8 space-y-8">
+                {/* Carousel Section */}
+                <div>
+                  <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                    AI Search Results
+                  </h3>
+                  {mappedHostels.length > 0 ? (
+                    <Carousel className="w-full">
+                      <CarouselContent>
+                        {mappedHostels.map((hostel, index) => (
+                          <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                            <HostelCard
+                              name={hostel.name}
+                              image={hostel.image}
+                              rating={hostel.rating}
+                              distance={hostel.distance}
+                              price={hostel.price}
+                              benefits={hostel.benefits}
+                              bookingLink={hostel.bookingLink}
+                            />
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                      <CarouselPrevious />
+                      <CarouselNext />
+                    </Carousel>
+                  ) : (
+                    <div className="bg-muted rounded-lg p-4">
+                      <p className="text-sm text-muted-foreground">No hostels found. Try adjusting your search.</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Mapped Array Section */}
+                {mappedHostels.length > 0 && (
+                  <div>
+                    <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-primary" />
+                      Mapped Carousel Data
+                    </h3>
+                    <div className="bg-muted rounded-lg p-4 overflow-x-auto">
+                      <pre className="text-xs text-foreground whitespace-pre-wrap">
+                        {JSON.stringify(mappedHostels, null, 2)}
+                      </pre>
+                    </div>
                   </div>
                 )}
+
+                {/* Raw MCP Response Section */}
+                <div>
+                  <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                    Raw MCP Server Response
+                  </h3>
+                  <div className="bg-muted rounded-lg p-4 overflow-x-auto">
+                    <pre className="text-xs text-foreground whitespace-pre-wrap">
+                      {JSON.stringify(mcpResponse, null, 2)}
+                    </pre>
+                  </div>
+                </div>
               </div>
             );
           })()}
