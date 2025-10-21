@@ -162,10 +162,9 @@ const Index = () => {
     }
   }, [displayHostels]);
 
-  // Automatic profile-based search on page load
+  // Mark initial load as complete without searching
   useEffect(() => {
     if (!profileLoading && profile && !initialLoadComplete) {
-      performProfileSearch();
       setInitialLoadComplete(true);
     }
   }, [profile, profileLoading, initialLoadComplete]);
