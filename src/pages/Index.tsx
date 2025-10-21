@@ -18,6 +18,7 @@ import { useMcpHostelSearch } from "@/hooks/useMcpHostelSearch";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { buildProfileQuery } from "@/utils/profileQuery";
 import { McpInspector } from "@/components/McpInspector";
+import { useIsMobile } from "@/hooks/use-mobile";
 import barcelonaImg from "@/assets/barcelona.jpg";
 import sydneyImg from "@/assets/sydney.jpg";
 import londonImg from "@/assets/london.jpg";
@@ -41,6 +42,7 @@ import hostel5Img from "@/assets/hostel5.jpg";
 
 const Index = () => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [searchQuery, setSearchQuery] = useState("");
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const hostelScrollRef = useRef<HTMLDivElement>(null);
@@ -328,7 +330,7 @@ const Index = () => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="text"
-                  placeholder="describe your ideal hostel features and location"
+                  placeholder={isMobile ? "describe your ideal hostel feature" : "describe your ideal hostel features and location"}
                   className="pl-9 w-full"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
