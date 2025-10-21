@@ -24,8 +24,13 @@ export const useMcpHostelSearch = () => {
     console.log('Profile-based:', profileBased);
 
     try {
-      // Stage 1: AI processing request
-      console.log('Stage: AI - Processing query with Claude');
+      // Stage 1: AI analyzing query
+      console.log('Stage: AI - Analyzing query');
+      setSearchStage('ai');
+      
+      // Stage 2: Calling MCP server
+      console.log('Stage: MCP - Searching Hostelworld');
+      setSearchStage('mcp');
       
       // Call edge function which handles MCP server connection and Claude integration
       const response = await fetch(
@@ -43,9 +48,9 @@ export const useMcpHostelSearch = () => {
       const data = await response.json();
       console.log('Search response:', data);
       
-      // Update stage based on response
+      // Stage 3: Sorting and ranking results
       if (data?.mcpResponse) {
-        console.log('Stage: MCP - Retrieved results from Hostelworld');
+        console.log('Stage: Sorting - Ranking results');
         setSearchStage('sorting');
       }
 

@@ -8,9 +8,9 @@ interface SearchProgressProps {
 
 const SearchProgress = ({ currentStage, errorMessage }: SearchProgressProps) => {
   const stages = [
-    { id: 'ai', label: 'Checking AI', value: 33 },
-    { id: 'mcp', label: 'Checking Hostelworld', value: 66 },
-    { id: 'sorting', label: 'Sorting results', value: 100 }
+    { id: 'ai', label: 'Analyzing your search', value: 33 },
+    { id: 'mcp', label: 'Searching Hostelworld', value: 66 },
+    { id: 'sorting', label: 'Ranking results', value: 100 }
   ];
 
   const currentStageIndex = stages.findIndex(s => s.id === currentStage);
