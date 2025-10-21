@@ -356,9 +356,9 @@ const Index = () => {
                 handleSearch(query);
               }}
               disabled={isSearching}
-              className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors disabled:opacity-50 whitespace-nowrap"
+              className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors disabled:opacity-50 overflow-x-auto"
             >
-              Find me a hostel for tonight nearby
+              <span className="whitespace-nowrap">Find me a hostel for tonight nearby</span>
             </button>
             <button 
               onClick={() => {
@@ -367,9 +367,9 @@ const Index = () => {
                 handleSearch(query);
               }}
               disabled={isSearching}
-              className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors disabled:opacity-50 whitespace-nowrap"
+              className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors disabled:opacity-50 overflow-x-auto"
             >
-              Social and pet-friendly hostels in Mexico City
+              <span className="whitespace-nowrap">Social and pet-friendly hostels in Mexico City</span>
             </button>
             <button 
               onClick={() => {
@@ -378,9 +378,9 @@ const Index = () => {
                 handleSearch(query);
               }}
               disabled={isSearching}
-              className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors disabled:opacity-50 whitespace-nowrap"
+              className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors disabled:opacity-50 overflow-x-auto"
             >
-              Hostels on the mediterranean
+              <span className="whitespace-nowrap">Hostels on the mediterranean</span>
             </button>
           </div>
         </section>
