@@ -5,6 +5,7 @@ import { DiscountCard } from "@/components/DiscountCard";
 import { InspiredCard } from "@/components/InspiredCard";
 import { HostelCard } from "@/components/HostelCard";
 import { BottomNavigation } from "@/components/BottomNavigation";
+import { DesktopNavigation } from "@/components/DesktopNavigation";
 import { Badge } from "@/components/ui/badge";
 import barcelonaImg from "@/assets/barcelona.jpg";
 import sydneyImg from "@/assets/sydney.jpg";
@@ -34,9 +35,12 @@ const Index = () => {
       <header className="bg-gradient-to-br from-primary via-primary to-primary-light px-6 pt-8 md:pt-12 pb-8 md:pb-12">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6 md:mb-8">
-            <h1 className="text-white text-2xl md:text-4xl font-bold max-w-[250px] md:max-w-xl">
-              Your next adventure starts here!
-            </h1>
+            <div className="flex items-center gap-4">
+              <DesktopNavigation />
+              <h1 className="text-white text-2xl md:text-4xl font-bold max-w-[250px] md:max-w-xl">
+                Your next adventure starts here!
+              </h1>
+            </div>
             <img
               src={profileImg}
               alt="Profile"
