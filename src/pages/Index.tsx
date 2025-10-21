@@ -316,32 +316,34 @@ const Index = () => {
         <section className="px-6 py-8 md:py-12 bg-white rounded-2xl mb-6">
           <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">AI Search</h2>
           
-          <div className="flex gap-2 mb-4 max-w-2xl">
-            <div className="relative flex-1">
+          <div className="max-w-2xl space-y-3 mb-4">
+            <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="describe your ideal hostel features and location"
-                className="pl-9"
+                className="pl-9 w-full"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={isSearching}
               />
             </div>
-            <Button 
-              onClick={() => handleSearch(searchQuery)}
-              disabled={isSearching}
-              className="gap-2"
-            >
-              {isSearching ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
-              Search
-            </Button>
-            <FiltersModal filters={filters} onFiltersChange={setFilters} />
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => handleSearch(searchQuery)}
+                disabled={isSearching}
+                className="gap-2"
+              >
+                {isSearching ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4" />
+                )}
+                Search
+              </Button>
+              <FiltersModal filters={filters} onFiltersChange={setFilters} />
+            </div>
           </div>
           
           <div className="flex gap-2 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide">
