@@ -39,10 +39,23 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<FilterOptions>({
     priceRange: [0, 200],
-    promotions: false,
-    privateRooms: false,
-    sustainableHostels: false,
     flexibleRates: false,
+    rating: "All",
+    roomTypes: {
+      dormEnsuite: false,
+      mixedDorm: false,
+      femaleDorm: false,
+      maleDorm: false,
+      privateEnsuite: false,
+      singleRoom: false,
+      twinRoom: false,
+      doubleRoom: false,
+      tripleRoom: false,
+      familyRoom: false,
+    },
+    sustainabilityLevel: "All",
+    facilities: [],
+    propertyTypes: [],
   });
   const { 
     searchHostels, 
