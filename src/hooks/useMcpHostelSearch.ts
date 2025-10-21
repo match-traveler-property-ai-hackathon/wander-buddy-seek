@@ -14,35 +14,39 @@ export const useMcpHostelSearch = () => {
 
     try {
       // Call edge function which handles MCP server connection and Claude integration
-      const { data, error } = await supabase.functions.invoke('hostel-search', {
-        body: { query, profileBased }
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/hostel-search`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ query, profileBased })
+        }
+      );
 
+      const data = await response.json();
       console.log('Search response:', data);
 
-      if (error) {
-        console.error('Search error:', error);
-        
-        // Check for rate limiting
-        if (error.message?.includes('429') || data?.rateLimited) {
-          return { 
-            success: false, 
-            message: 'Rate limit exceeded. Please wait a moment and try again.',
-            rateLimited: true 
-          };
-        }
-        
-        throw error;
-      }
-
-      // Check for rate limit in response
-      if (data?.rateLimited) {
-        console.log('Rate limited by Claude API');
+      // Handle rate limiting (429 status)
+      if (response.status === 429 || data?.rateLimited) {
+        console.log('Rate limited - request throttled');
         setMcpResponse(null);
         return { 
           success: false, 
-          message: 'Rate limit exceeded. Please wait a moment and try again.',
+          message: data?.error || 'Rate limit exceeded. Please wait a moment and try again.',
           rateLimited: true 
+        };
+      }
+
+      // Handle other errors
+      if (!response.ok) {
+        console.error('Search error:', response.status, data);
+        return {
+          success: false,
+          message: data?.error || `Request failed with status ${response.status}`,
+          rateLimited: false
         };
       }
 
@@ -60,7 +64,12 @@ export const useMcpHostelSearch = () => {
       }
     } catch (error) {
       console.error('Error in MCP hostel search:', error);
-      throw error;
+      setMcpResponse(null);
+      return {
+        success: false,
+        message: 'Search failed. Please try again.',
+        rateLimited: false
+      };
     } finally {
       setIsSearching(false);
     }
