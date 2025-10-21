@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { SearchWidget } from "@/components/SearchWidget";
 import { TravelPlanCard } from "@/components/TravelPlanCard";
 import { RecentSearchItem } from "@/components/RecentSearchItem";
@@ -8,7 +9,9 @@ import { BottomNavigation } from "@/components/BottomNavigation";
 import { DesktopNavigation } from "@/components/DesktopNavigation";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import barcelonaImg from "@/assets/barcelona.jpg";
 import sydneyImg from "@/assets/sydney.jpg";
 import londonImg from "@/assets/london.jpg";
@@ -30,7 +33,116 @@ import hostel3Img from "@/assets/hostel3.jpg";
 import hostel4Img from "@/assets/hostel4.jpg";
 import hostel5Img from "@/assets/hostel5.jpg";
 
+interface Hostel {
+  name: string;
+  image: string;
+  rating: number;
+  distance: string;
+  price: number;
+  benefits: string[];
+}
+
 const Index = () => {
+  const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [hostels, setHostels] = useState<Hostel[]>([
+    {
+      name: "Casa Pepe",
+      image: hostel1Img,
+      rating: 4.8,
+      distance: "1.2 km from centre",
+      price: 25,
+      benefits: ["Pet-friendly", "Social", "Free WiFi"]
+    },
+    {
+      name: "Mexico City Rooftop",
+      image: hostel2Img,
+      rating: 4.9,
+      distance: "0.8 km from centre",
+      price: 32,
+      benefits: ["Pet-friendly", "Rooftop terrace", "Kitchen"]
+    },
+    {
+      name: "La Casa Colorida",
+      image: hostel3Img,
+      rating: 4.7,
+      distance: "1.5 km from centre",
+      price: 28,
+      benefits: ["Pet-friendly", "Social", "Bar"]
+    },
+    {
+      name: "Green Garden Hostel",
+      image: hostel4Img,
+      rating: 4.9,
+      distance: "2.1 km from centre",
+      price: 30,
+      benefits: ["Pet-friendly", "Eco-friendly", "Garden"]
+    },
+    {
+      name: "Colonial Charm",
+      image: hostel5Img,
+      rating: 4.6,
+      distance: "1.8 km from centre",
+      price: 27,
+      benefits: ["Pet-friendly", "Historic building", "Courtyard"]
+    }
+  ]);
+
+  const handleSearch = async (query: string) => {
+    if (!query.trim()) {
+      toast({
+        title: "Please enter a search query",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSearching(true);
+    console.log('Starting search for:', query);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('hostel-search', {
+        body: { query }
+      });
+
+      console.log('Search response:', data);
+
+      if (error) {
+        console.error('Search error:', error);
+        throw error;
+      }
+
+      if (data?.hostels && Array.isArray(data.hostels) && data.hostels.length > 0) {
+        setHostels(data.hostels);
+        toast({
+          title: "Search complete!",
+          description: `Found ${data.hostels.length} hostels matching your criteria`,
+        });
+      } else {
+        toast({
+          title: "No results found",
+          description: "Try adjusting your search criteria",
+        });
+      }
+    } catch (error) {
+      console.error('Error searching hostels:', error);
+      toast({
+        title: "Search failed",
+        description: "Unable to search hostels. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch(searchQuery);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background md:pb-0 pb-24">
       {/* Header with gradient background */}
@@ -63,46 +175,17 @@ const Index = () => {
             Social and pet-friendly hostels in Mexico City
           </p>
           <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide mb-6 md:mb-8">
-            <HostelCard
-              name="Casa Pepe"
-              image={hostel1Img}
-              rating={4.8}
-              distance="1.2 km from centre"
-              price={25}
-              benefits={["Pet-friendly", "Social", "Free WiFi"]}
-            />
-            <HostelCard
-              name="Mexico City Rooftop"
-              image={hostel2Img}
-              rating={4.9}
-              distance="0.8 km from centre"
-              price={32}
-              benefits={["Pet-friendly", "Rooftop terrace", "Kitchen"]}
-            />
-            <HostelCard
-              name="La Casa Colorida"
-              image={hostel3Img}
-              rating={4.7}
-              distance="1.5 km from centre"
-              price={28}
-              benefits={["Pet-friendly", "Social", "Bar"]}
-            />
-            <HostelCard
-              name="Green Garden Hostel"
-              image={hostel4Img}
-              rating={4.9}
-              distance="2.1 km from centre"
-              price={30}
-              benefits={["Pet-friendly", "Eco-friendly", "Garden"]}
-            />
-            <HostelCard
-              name="Colonial Charm"
-              image={hostel5Img}
-              rating={4.6}
-              distance="1.8 km from centre"
-              price={27}
-              benefits={["Pet-friendly", "Historic building", "Courtyard"]}
-            />
+            {hostels.map((hostel, index) => (
+              <HostelCard
+                key={index}
+                name={hostel.name}
+                image={hostel.image}
+                rating={hostel.rating}
+                distance={hostel.distance}
+                price={hostel.price}
+                benefits={hostel.benefits}
+              />
+            ))}
           </div>
           
           <div className="mt-6 md:mt-8">
@@ -111,17 +194,48 @@ const Index = () => {
               <Input
                 type="text"
                 placeholder="describe your ideal hostel features and location"
-                className="pl-9"
+                className="pl-9 pr-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={handleKeyPress}
+                disabled={isSearching}
               />
+              {isSearching && (
+                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-primary" />
+              )}
             </div>
             <div className="flex flex-wrap gap-2 max-w-2xl">
-              <button className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors">
+              <button 
+                onClick={() => {
+                  const query = "I'd like a city break for myself within a two hour flight of Dublin";
+                  setSearchQuery(query);
+                  handleSearch(query);
+                }}
+                disabled={isSearching}
+                className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors disabled:opacity-50"
+              >
                 I'd like a city break for myself within a two hour flight of Dublin
               </button>
-              <button className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors">
+              <button 
+                onClick={() => {
+                  const query = "Social and pet-friendly hostels in Mexico City";
+                  setSearchQuery(query);
+                  handleSearch(query);
+                }}
+                disabled={isSearching}
+                className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors disabled:opacity-50"
+              >
                 Social and pet-friendly hostels in Mexico City
               </button>
-              <button className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors">
+              <button 
+                onClick={() => {
+                  const query = "Hostels on the mediterranean with a surf school nearby";
+                  setSearchQuery(query);
+                  handleSearch(query);
+                }}
+                disabled={isSearching}
+                className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors disabled:opacity-50"
+              >
                 Hostels on the mediterranean with a surf school nearby
               </button>
             </div>

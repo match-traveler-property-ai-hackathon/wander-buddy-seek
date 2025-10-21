@@ -1,1 +1,4 @@
 project_id = "ztzggqdxcolbfgshegzv"
+
+[functions.hostel-search]
+verify_jwt = false
