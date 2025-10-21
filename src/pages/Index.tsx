@@ -378,7 +378,7 @@ const Index = () => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="text"
-                  placeholder={isMobile ? "describe your ideal hostel feature" : "describe your ideal hostel features and location"}
+                  placeholder="Describe your stay"
                   className="pl-9 w-full"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
