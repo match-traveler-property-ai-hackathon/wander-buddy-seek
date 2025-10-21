@@ -3,8 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Loader2, RefreshCw, CheckCircle2, XCircle } from 'lucide-react';
-
-const MCP_SERVER_URL = 'https://test.apigee.hostelworld.com/inventory-mcp-service-plan-trip-server/mcp';
+import { supabase } from '@/integrations/supabase/client';
 
 interface McpTool {
   name: string;
@@ -23,28 +22,18 @@ export const McpInspector = () => {
     setError(null);
     
     try {
-      const response = await fetch(MCP_SERVER_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json, text/event-stream'
-        },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          method: 'tools/list',
-          id: 1
-        })
+      const { data, error: invokeError } = await supabase.functions.invoke('hostel-search', {
+        body: { action: 'list-tools' }
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.result?.tools) {
-          setTools(data.result.tools);
-        } else {
-          setError('No tools found in response');
-        }
+      if (invokeError) {
+        throw invokeError;
+      }
+
+      if (data.success && data.tools) {
+        setTools(data.tools);
       } else {
-        setError(`Failed to fetch: ${response.status} ${response.statusText}`);
+        setError(data.error || 'No tools found in response');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -150,8 +139,8 @@ export const McpInspector = () => {
           </div>
 
           <div className="text-xs text-muted-foreground">
-            <div className="font-medium mb-1">Server URL:</div>
-            <div className="bg-muted p-2 rounded break-all">{MCP_SERVER_URL}</div>
+            <div className="font-medium mb-1">Connection:</div>
+            <div className="bg-muted p-2 rounded break-all">Via Lovable Cloud Edge Function</div>
           </div>
         </div>
       </CardContent>

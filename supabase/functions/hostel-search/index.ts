@@ -15,7 +15,53 @@ serve(async (req) => {
   }
 
   try {
-    const { query, profileBased } = await req.json();
+    const { action, query, profileBased } = await req.json();
+    
+    // Handle list-tools action for MCP Inspector
+    if (action === 'list-tools') {
+      console.log('Fetching tools list for MCP Inspector');
+      
+      try {
+        const mcpResponse = await fetch(MCP_SERVER_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json, text/event-stream'
+          },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            method: 'tools/list',
+            id: 1
+          })
+        });
+
+        if (mcpResponse.ok) {
+          const mcpData = await mcpResponse.json();
+          console.log('MCP tools fetched successfully');
+          
+          return new Response(JSON.stringify({ 
+            success: true,
+            tools: mcpData.result?.tools || []
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        } else {
+          throw new Error(`MCP server returned ${mcpResponse.status}`);
+        }
+      } catch (mcpError) {
+        console.error('Error fetching MCP tools:', mcpError);
+        return new Response(JSON.stringify({ 
+          success: false,
+          error: mcpError instanceof Error ? mcpError.message : 'Failed to fetch tools',
+          tools: []
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+    
+    // Handle regular hostel search
     console.log('Received hostel search query:', query);
     console.log('Profile-based search:', profileBased);
 
