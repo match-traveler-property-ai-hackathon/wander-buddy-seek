@@ -261,7 +261,7 @@ const Index = () => {
               <Button
                 variant="outline"
                 size="icon"
-                className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-20 rounded-full bg-white shadow-lg hover:bg-white hover:shadow-xl"
+                className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 rounded-full bg-white/90 shadow-lg hover:bg-white hover:shadow-xl transition-all"
                 onClick={() => scroll('left')}
               >
                 <ChevronLeft className="h-5 w-5" />
@@ -273,7 +273,7 @@ const Index = () => {
               <Button
                 variant="outline"
                 size="icon"
-                className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-20 rounded-full bg-white shadow-lg hover:bg-white hover:shadow-xl"
+                className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 rounded-full bg-white/90 shadow-lg hover:bg-white hover:shadow-xl transition-all"
                 onClick={() => scroll('right')}
               >
                 <ChevronRight className="h-5 w-5" />
