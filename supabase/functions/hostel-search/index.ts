@@ -108,21 +108,31 @@ serve(async (req) => {
     }
 
     // Step 2: Build Claude request with MCP tools and enhanced prompt for profile-based searches
+    // Get today's date for context
+    const today = new Date('2025-10-21');
+    const todayStr = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+    
     const systemPrompt = profileBased 
       ? `You are a personalized hostel recommendation assistant with access to the Hostelworld inventory system.
+
+IMPORTANT: Today's date is ${todayStr} (October 21st, 2025). When using the MCP tools, you MUST provide dates in the future (after ${todayStr}). Use YYYY-MM-DD format for all dates.
 
 This is a PROFILE-BASED search. The user query contains their travel preferences, interests, and requirements.
 
 Your task:
 1. Carefully analyze the user's preferences mentioned in the query
 2. ${mcpTools.length > 0 ? 'Use the available MCP tools to search the Hostelworld inventory' : 'Search for relevant hostels based on the query'}
-3. Find hostels that BEST MATCH the user's:
+3. When calling MCP tools with dates:
+   - If no specific date is mentioned, use dates starting from ${todayStr} or later
+   - If "tonight" or "today" is mentioned, use ${todayStr}
+   - Always ensure dates are in YYYY-MM-DD format and in the future
+4. Find hostels that BEST MATCH the user's:
    - Interests (e.g., surfing, partying, culture)
    - Preferred amenities (e.g., bar, pool, social events)
    - Destination preferences
    - Budget range
-4. Prioritize hostels with good ratings (7+ preferred)
-5. Include hostels with availability
+5. Prioritize hostels with good ratings (7+ preferred)
+6. Include hostels with availability
 
 After getting results, format them as a JSON array with this structure:
 [
@@ -139,6 +149,13 @@ After getting results, format them as a JSON array with this structure:
 
 Return only the JSON array, no markdown or explanation.`
       : `You are a hostel search assistant with access to the Hostelworld inventory system.
+
+IMPORTANT: Today's date is ${todayStr} (October 21st, 2025). When using the MCP tools, you MUST provide dates in the future (after ${todayStr}). Use YYYY-MM-DD format for all dates.
+
+Guidelines:
+- If no specific date is mentioned, use dates starting from ${todayStr} or later
+- If "tonight" or "today" is mentioned, use ${todayStr}
+- Always ensure dates are in YYYY-MM-DD format and in the future
 
 Find hostels matching this query and format them as a JSON array with this structure:
 [
