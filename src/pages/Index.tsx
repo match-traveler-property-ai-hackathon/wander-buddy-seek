@@ -136,9 +136,14 @@ const Index = () => {
   // Process MCP response and map to hostel card format
   const displayHostels = useMemo(() => {
     console.log('MCP Response:', mcpResponse);
-    console.log('Hostels from response:', mcpResponse?.structuredContent?.hostels);
     
-    const mapped = mcpResponse?.structuredContent?.hostels?.map((hostel: any) => {
+    // Handle both response structures
+    const hostels = mcpResponse?.structuredContent?.hostels || 
+                    mcpResponse?.structuredContent?.results?.[0]?.hostels;
+    
+    console.log('Hostels from response:', hostels);
+    
+    const mapped = hostels?.map((hostel: any) => {
       console.log('Mapping hostel:', hostel.name, hostel);
       return {
         id: hostel.id,
@@ -461,7 +466,8 @@ const Index = () => {
           {/* MCP Search Results Display */}
           {mcpResponse && (() => {
             // Use the same mapped hostels from displayHostels (filter out defaults)
-            const searchResults = mcpResponse?.structuredContent?.hostels ? displayHostels : [];
+            const searchResults = (mcpResponse?.structuredContent?.hostels || 
+                                  mcpResponse?.structuredContent?.results?.[0]?.hostels) ? displayHostels : [];
 
             return (
               <div className="mt-8 space-y-8">
