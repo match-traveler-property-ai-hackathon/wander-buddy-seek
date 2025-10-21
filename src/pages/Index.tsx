@@ -240,7 +240,7 @@ const Index = () => {
                     className="w-10 h-10 md:w-12 md:h-12"
                   />
                   <h1 className="text-white text-xl md:text-3xl font-bold">
-                    Your next adventure starts here!
+                    Meet your people.
                   </h1>
                 </div>
                 <DesktopNavigation />
