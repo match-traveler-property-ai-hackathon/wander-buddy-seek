@@ -461,10 +461,11 @@ Return only the JSON array, no markdown or explanation.`;
           const resultContent = JSON.parse(toolResult.content);
           console.log('MCP Tool Result Content:', JSON.stringify(resultContent, null, 2));
           
-          // Check if this is a successful MCP result
-          if (resultContent && resultContent.content) {
+          // Check if this is a successful MCP result with structured content
+          if (resultContent && resultContent.structuredContent) {
             mcpResponse = resultContent;
             hasResults = true;
+            console.log('Found valid MCP response with structuredContent');
             break;
           }
         }
