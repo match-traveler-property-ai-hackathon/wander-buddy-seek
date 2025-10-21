@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SearchWidget } from "@/components/SearchWidget";
 import { TravelPlanCard } from "@/components/TravelPlanCard";
 import { RecentSearchItem } from "@/components/RecentSearchItem";
@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Search, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { useMcpHostelSearch } from "@/hooks/useMcpHostelSearch";
 import barcelonaImg from "@/assets/barcelona.jpg";
 import sydneyImg from "@/assets/sydney.jpg";
 import londonImg from "@/assets/london.jpg";
@@ -33,20 +33,17 @@ import hostel3Img from "@/assets/hostel3.jpg";
 import hostel4Img from "@/assets/hostel4.jpg";
 import hostel5Img from "@/assets/hostel5.jpg";
 
-interface Hostel {
-  name: string;
-  image: string;
-  rating: number;
-  distance: string;
-  price: number;
-  benefits: string[];
-}
-
 const Index = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
-  const [hostels, setHostels] = useState<Hostel[]>([
+  const { 
+    searchHostels, 
+    isSearching, 
+    hostels: mcpHostels
+  } = useMcpHostelSearch();
+
+  // Default hostels to display initially
+  const defaultHostels = [
     {
       name: "Casa Pepe",
       image: hostel1Img,
@@ -87,7 +84,9 @@ const Index = () => {
       price: 27,
       benefits: ["Pet-friendly", "Historic building", "Courtyard"]
     }
-  ]);
+  ];
+
+  const displayHostels = mcpHostels.length > 0 ? mcpHostels : defaultHostels;
 
   const handleSearch = async (query: string) => {
     if (!query.trim()) {
@@ -98,26 +97,15 @@ const Index = () => {
       return;
     }
 
-    setIsSearching(true);
-    console.log('Starting search for:', query);
+    console.log('Starting MCP search for:', query);
 
     try {
-      const { data, error } = await supabase.functions.invoke('hostel-search', {
-        body: { query }
-      });
+      const result = await searchHostels(query);
 
-      console.log('Search response:', data);
-
-      if (error) {
-        console.error('Search error:', error);
-        throw error;
-      }
-
-      if (data?.hostels && Array.isArray(data.hostels) && data.hostels.length > 0) {
-        setHostels(data.hostels);
+      if (result.success) {
         toast({
           title: "Search complete!",
-          description: `Found ${data.hostels.length} hostels matching your criteria`,
+          description: `Found ${result.count} hostels matching your criteria`,
         });
       } else {
         toast({
@@ -132,8 +120,6 @@ const Index = () => {
         description: "Unable to search hostels. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setIsSearching(false);
     }
   };
 
@@ -175,7 +161,7 @@ const Index = () => {
             Social and pet-friendly hostels in Mexico City
           </p>
           <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide mb-6 md:mb-8">
-            {hostels.map((hostel, index) => (
+            {displayHostels.map((hostel, index) => (
               <HostelCard
                 key={index}
                 name={hostel.name}
