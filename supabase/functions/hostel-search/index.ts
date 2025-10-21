@@ -250,7 +250,18 @@ Your task:
 5. Prioritize hostels with good ratings (7+ preferred)
 6. Include hostels with availability
 
-After getting results, format them as a JSON array with this structure:
+CRITICAL: For each hostel, you MUST provide a detailed explanation in the "reason" field that explains:
+- Why this hostel is ranked so highly in the results
+- What specific features make it a great match for the search criteria
+- Key standout attributes (rating, location, facilities, atmosphere, value)
+- Be specific and reference actual hostel details from the data
+
+Example good reasons:
+- "Top-rated hostel (9.5/10) with excellent party atmosphere, nightly bar events, and central location just 0.2km from the main attractions"
+- "Perfect for digital nomads with coworking spaces, fast WiFi, and quiet work areas. Great value at €25/night"
+- "Ideal for adventure seekers with gear storage, tour desk, and mountain bike rentals. Close to hiking trails"
+
+After getting results, format them as a JSON array with this structure - NEVER return the raw MCP data:
 [
   {
     "name": "hostel name",
@@ -260,7 +271,7 @@ After getting results, format them as a JSON array with this structure:
     "benefits": ["benefit1", "benefit2", "benefit3"],
     "image": "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=400",
     "bookingLink": "https://www.hostelworld.com/...",
-    "reason": "Brief reason why this hostel matches user preferences (e.g., 'Great for surfers with board storage and beach access' or 'Perfect party hostel with nightly bar events')"
+    "reason": "Detailed explanation of why this hostel ranks highly (see examples above)"
   }
 ]
 
@@ -274,7 +285,18 @@ Guidelines:
 - If "tonight" or "today" is mentioned, use ${todayStr}
 - Always ensure dates are in YYYY-MM-DD format and in the future
 
-Find hostels matching this query and format them as a JSON array with this structure:
+CRITICAL: For each hostel, you MUST provide a detailed explanation in the "reason" field that explains:
+- Why this hostel is ranked so highly in the results
+- What specific features make it stand out for the search query
+- Key standout attributes (rating, location, facilities, price, atmosphere)
+- Be specific and reference actual hostel details from the data
+
+Example good reasons:
+- "Exceptional 9.8/10 rating with outstanding cleanliness scores. Central location (0.3km from centre) and competitive pricing at €23/night"
+- "Best value in area at €18/night with 8.5/10 rating. Features rooftop terrace, bar, and social events perfect for meeting other travelers"
+- "Highest security rating (9.7/10) with 24-hour reception, lockers, and key card access. Walking distance to main attractions"
+
+Find hostels matching this query and format them as a JSON array with this structure - NEVER return the raw MCP data:
 [
   {
     "name": "hostel name",
@@ -284,7 +306,7 @@ Find hostels matching this query and format them as a JSON array with this struc
     "benefits": ["benefit1", "benefit2", "benefit3"],
     "image": "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=400",
     "bookingLink": "https://www.hostelworld.com/...",
-    "reason": "Brief reason why this hostel matches the search criteria"
+    "reason": "Detailed explanation of why this hostel ranks highly (see examples above)"
   }
 ]
 
@@ -443,8 +465,13 @@ Return only the JSON array, no markdown or explanation.`;
       console.log('Stage: Sorting - Sending results to Claude for sorting and formatting...');
       const finalRequest = {
         model: 'claude-sonnet-4-5',
-        max_tokens: 2048,
-        system: `${systemPrompt}\n\nIMPORTANT: Sort the hostels based on how well they match the user's request. Consider rating, price, distance, and relevant facilities. Return results as-is without reformatting.`,
+        max_tokens: 4096,
+        system: `${systemPrompt}\n\nIMPORTANT: 
+1. Sort the hostels based on how well they match the user's request (consider rating, price, distance, and relevant facilities)
+2. For EACH hostel, write a detailed, specific explanation in the "reason" field explaining why it ranks highly
+3. Reference actual data points from the hostel (ratings, distance, price, facilities, etc.)
+4. Make each reason unique and relevant to that specific hostel
+5. Return the formatted JSON array as specified in the system prompt - DO NOT return raw MCP data`,
         messages: [
           {
             role: 'user',
