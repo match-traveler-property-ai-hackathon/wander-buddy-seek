@@ -22,7 +22,28 @@ export const useMcpHostelSearch = () => {
 
       if (error) {
         console.error('Search error:', error);
+        
+        // Check for rate limiting
+        if (error.message?.includes('429') || data?.rateLimited) {
+          return { 
+            success: false, 
+            message: 'Rate limit exceeded. Please wait a moment and try again.',
+            rateLimited: true 
+          };
+        }
+        
         throw error;
+      }
+
+      // Check for rate limit in response
+      if (data?.rateLimited) {
+        console.log('Rate limited by Claude API');
+        setMcpResponse(null);
+        return { 
+          success: false, 
+          message: 'Rate limit exceeded. Please wait a moment and try again.',
+          rateLimited: true 
+        };
       }
 
       if (data?.message === "No results found on Inv MCP") {

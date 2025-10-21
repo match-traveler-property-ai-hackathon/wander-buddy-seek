@@ -9,6 +9,96 @@ const corsHeaders = {
 
 const MCP_SERVER_URL = 'https://test.apigee.hostelworld.com/inventory-mcp-service-plan-trip-server/mcp';
 
+// Simple in-memory cache for MCP tools (5 minute TTL)
+let mcpToolsCache: { tools: any[], timestamp: number } | null = null;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+// Retry with exponential backoff for rate limiting
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  maxRetries = 3
+): Promise<Response> {
+  let lastError: Error | null = null;
+  
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await fetch(url, options);
+      
+      // If rate limited, wait and retry
+      if (response.status === 429) {
+        const retryAfter = response.headers.get('retry-after');
+        const waitTime = retryAfter 
+          ? parseInt(retryAfter) * 1000 
+          : Math.min(1000 * Math.pow(2, attempt), 10000); // Exponential backoff, max 10s
+        
+        console.log(`Rate limited (429). Retrying in ${waitTime}ms (attempt ${attempt + 1}/${maxRetries})`);
+        
+        if (attempt < maxRetries - 1) {
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          continue;
+        }
+      }
+      
+      return response;
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error('Unknown error');
+      console.error(`Attempt ${attempt + 1}/${maxRetries} failed:`, error);
+      
+      if (attempt < maxRetries - 1) {
+        const waitTime = Math.min(1000 * Math.pow(2, attempt), 10000);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+      }
+    }
+  }
+  
+  throw lastError || new Error('Max retries exceeded');
+}
+
+// Fetch MCP tools with caching
+async function getMcpTools(): Promise<any[]> {
+  // Check cache
+  if (mcpToolsCache && Date.now() - mcpToolsCache.timestamp < CACHE_TTL) {
+    console.log('Using cached MCP tools');
+    return mcpToolsCache.tools;
+  }
+  
+  console.log('Fetching fresh MCP tools');
+  try {
+    const mcpResponse = await fetch(MCP_SERVER_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json, text/event-stream'
+      },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        method: 'tools/list',
+        id: 1
+      })
+    });
+
+    if (mcpResponse.ok) {
+      const mcpData = await mcpResponse.json();
+      const tools = mcpData.result?.tools?.map((tool: any) => ({
+        name: tool.name,
+        description: tool.description,
+        input_schema: tool.inputSchema || { type: 'object', properties: {} }
+      })) || [];
+      
+      // Update cache
+      mcpToolsCache = { tools, timestamp: Date.now() };
+      console.log('Cached', tools.length, 'MCP tools');
+      
+      return tools;
+    }
+  } catch (error) {
+    console.warn('Error fetching MCP tools:', error);
+  }
+  
+  return [];
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -70,42 +160,8 @@ serve(async (req) => {
       throw new Error('ANTHROPIC_API_KEY is not set');
     }
 
-    // Step 1: Connect to MCP server to get available tools
-    console.log('Fetching tools from MCP server:', MCP_SERVER_URL);
-    let mcpTools: any[] = [];
-    
-    try {
-      const mcpResponse = await fetch(MCP_SERVER_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json, text/event-stream'
-        },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          method: 'tools/list',
-          id: 1
-        })
-      });
-
-      if (mcpResponse.ok) {
-        const mcpData = await mcpResponse.json();
-        console.log('MCP server response:', JSON.stringify(mcpData, null, 2));
-        
-        if (mcpData.result?.tools) {
-          mcpTools = mcpData.result.tools.map((tool: any) => ({
-            name: tool.name,
-            description: tool.description,
-            input_schema: tool.inputSchema || { type: 'object', properties: {} }
-          }));
-          console.log('Extracted MCP tools:', JSON.stringify(mcpTools, null, 2));
-        }
-      } else {
-        console.warn('Failed to fetch MCP tools:', await mcpResponse.text());
-      }
-    } catch (mcpError) {
-      console.warn('Error fetching MCP tools:', mcpError);
-    }
+    // Step 1: Get MCP tools (with caching)
+    const mcpTools = await getMcpTools();
 
     // Step 2: Build Claude request with MCP tools and enhanced prompt for profile-based searches
     // Get today's date for context
@@ -192,9 +248,9 @@ Return only the JSON array, no markdown or explanation.`;
       console.log('Added', mcpTools.length, 'MCP tools to Claude request');
     }
 
-    // Step 3: Call Claude with MCP tools
+    // Step 3: Call Claude with MCP tools (with retry logic)
     console.log('Calling Claude API...');
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetchWithRetry('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'x-api-key': ANTHROPIC_API_KEY,
@@ -207,6 +263,18 @@ Return only the JSON array, no markdown or explanation.`;
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Claude API error:', response.status, errorText);
+      
+      // Return user-friendly error messages
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ 
+          error: 'Rate limit exceeded. Please wait a moment and try again.',
+          rateLimited: true
+        }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
       throw new Error(`Claude API error: ${response.status}`);
     }
 
@@ -293,7 +361,7 @@ Return only the JSON array, no markdown or explanation.`;
         tools: mcpTools
       };
       
-      const finalResponse = await fetch('https://api.anthropic.com/v1/messages', {
+      const finalResponse = await fetchWithRetry('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
           'x-api-key': ANTHROPIC_API_KEY,
@@ -306,6 +374,17 @@ Return only the JSON array, no markdown or explanation.`;
       if (!finalResponse.ok) {
         const errorText = await finalResponse.text();
         console.error('Claude final API error:', finalResponse.status, errorText);
+        
+        if (finalResponse.status === 429) {
+          return new Response(JSON.stringify({ 
+            error: 'Rate limit exceeded. Please wait a moment and try again.',
+            rateLimited: true
+          }), {
+            status: 429,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
         throw new Error(`Claude final API error: ${finalResponse.status}`);
       }
       

@@ -207,8 +207,9 @@ const Index = () => {
         });
       } else {
         toast({
-          title: "No results found",
+          title: result.rateLimited ? "Rate limit exceeded" : "No results found",
           description: result.message || "Try adjusting your search criteria",
+          variant: result.rateLimited ? "destructive" : "default",
         });
       }
     } catch (error) {
