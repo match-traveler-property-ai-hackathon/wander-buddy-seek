@@ -314,7 +314,10 @@ const Index = () => {
 
         {/* AI Search Section */}
         <section className="px-6 py-8 md:py-12 bg-white rounded-2xl mb-6">
-          <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">AI Search</h2>
+          <div className="flex items-center gap-2 mb-6 md:mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold">AI Search</h2>
+            <Sparkles className="h-6 w-6 md:h-7 md:w-7 text-primary" />
+          </div>
           
           <div className="max-w-2xl space-y-3 md:space-y-0 mb-4">
             <div className="flex flex-col md:flex-row gap-2">
