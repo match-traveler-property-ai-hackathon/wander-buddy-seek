@@ -151,9 +151,38 @@ const Index = () => {
         price: parseFloat(hostel.lowestPricePerNight?.value || '0'),
         image: hostel.images?.[0] ? `https://${hostel.images[0].prefix}${hostel.images[0].suffix}` : hostel1Img,
         rating: hostel.overallRating?.overall ? hostel.overallRating.overall / 10 : 4.5,
-        benefits: hostel.facilities?.slice(0, 3).flatMap((category: any) => 
-          category.facilities?.slice(0, 1).map((facility: any) => facility.name) || []
-        ).filter(Boolean).slice(0, 3) || ["Free WiFi"],
+        benefits: (() => {
+          if (!hostel.facilities) return ["Free WiFi"];
+          
+          // Prioritize certain facility categories
+          const priorityCategories = ["FACILITYCATEGORYFREE", "FACILITYCATEGORYBEDROOM", "FACILITYCATEGORYENTERTAINMENT"];
+          const allFacilities: string[] = [];
+          
+          // First, collect facilities from priority categories
+          priorityCategories.forEach(categoryId => {
+            const category = hostel.facilities.find((cat: any) => cat.id === categoryId);
+            if (category?.facilities) {
+              category.facilities.forEach((facility: any) => {
+                if (facility.name) allFacilities.push(facility.name);
+              });
+            }
+          });
+          
+          // If we don't have enough, add from other categories
+          if (allFacilities.length < 3) {
+            hostel.facilities.forEach((category: any) => {
+              if (!priorityCategories.includes(category.id) && category.facilities) {
+                category.facilities.forEach((facility: any) => {
+                  if (facility.name && allFacilities.length < 6) {
+                    allFacilities.push(facility.name);
+                  }
+                });
+              }
+            });
+          }
+          
+          return allFacilities.slice(0, 3);
+        })(),
         bookingLink: hostel.bookingLink,
         distance: hostel.distance?.value ? `${hostel.distance.value} ${hostel.distance.units} from centre` : undefined
       };
