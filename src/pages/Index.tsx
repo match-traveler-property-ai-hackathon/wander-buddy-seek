@@ -10,9 +10,12 @@ import { DesktopNavigation } from "@/components/DesktopNavigation";
 import { FiltersModal, FilterOptions } from "@/components/FiltersModal";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMcpHostelSearch } from "@/hooks/useMcpHostelSearch";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { buildProfileQuery } from "@/utils/profileQuery";
 import barcelonaImg from "@/assets/barcelona.jpg";
 import sydneyImg from "@/assets/sydney.jpg";
 import londonImg from "@/assets/london.jpg";
@@ -37,6 +40,7 @@ import hostel5Img from "@/assets/hostel5.jpg";
 const Index = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [filters, setFilters] = useState<FilterOptions>({
     priceRange: [0, 200],
     flexibleRates: false,
@@ -62,6 +66,7 @@ const Index = () => {
     isSearching, 
     hostels: mcpHostels
   } = useMcpHostelSearch();
+  const { profile, loading: profileLoading } = useUserProfile();
 
   // Default hostels to display initially
   const defaultHostels = [
@@ -71,7 +76,8 @@ const Index = () => {
       rating: 4.8,
       distance: "1.2 km from centre",
       price: 25,
-      benefits: ["Pet-friendly", "Social", "Free WiFi"]
+      benefits: ["Pet-friendly", "Social", "Free WiFi"],
+      bookingLink: undefined
     },
     {
       name: "Mexico City Rooftop",
@@ -79,7 +85,8 @@ const Index = () => {
       rating: 4.9,
       distance: "0.8 km from centre",
       price: 32,
-      benefits: ["Pet-friendly", "Rooftop terrace", "Kitchen"]
+      benefits: ["Pet-friendly", "Rooftop terrace", "Kitchen"],
+      bookingLink: undefined
     },
     {
       name: "La Casa Colorida",
@@ -87,7 +94,8 @@ const Index = () => {
       rating: 4.7,
       distance: "1.5 km from centre",
       price: 28,
-      benefits: ["Pet-friendly", "Social", "Bar"]
+      benefits: ["Pet-friendly", "Social", "Bar"],
+      bookingLink: undefined
     },
     {
       name: "Green Garden Hostel",
@@ -95,7 +103,8 @@ const Index = () => {
       rating: 4.9,
       distance: "2.1 km from centre",
       price: 30,
-      benefits: ["Pet-friendly", "Eco-friendly", "Garden"]
+      benefits: ["Pet-friendly", "Eco-friendly", "Garden"],
+      bookingLink: undefined
     },
     {
       name: "Colonial Charm",
@@ -103,11 +112,41 @@ const Index = () => {
       rating: 4.6,
       distance: "1.8 km from centre",
       price: 27,
-      benefits: ["Pet-friendly", "Historic building", "Courtyard"]
+      benefits: ["Pet-friendly", "Historic building", "Courtyard"],
+      bookingLink: undefined
     }
   ];
 
   const displayHostels = mcpHostels.length > 0 ? mcpHostels : defaultHostels;
+
+  // Automatic profile-based search on page load
+  useEffect(() => {
+    if (!profileLoading && profile && !initialLoadComplete) {
+      performProfileSearch();
+      setInitialLoadComplete(true);
+    }
+  }, [profile, profileLoading, initialLoadComplete]);
+
+  const performProfileSearch = async () => {
+    if (!profile) return;
+
+    const query = buildProfileQuery(profile);
+    console.log('Performing profile-based search:', query);
+
+    try {
+      const result = await searchHostels(query, true); // true = profile-based
+      
+      if (result.success) {
+        toast({
+          title: "Welcome back!",
+          description: `Found ${result.count} hostels based on your preferences.`,
+        });
+      }
+    } catch (error) {
+      console.error('Profile search failed:', error);
+      // Don't show error toast for automatic search
+    }
+  };
 
   const handleSearch = async (query: string) => {
     if (!query.trim()) {
@@ -121,7 +160,7 @@ const Index = () => {
     console.log('Starting MCP search for:', query);
 
     try {
-      const result = await searchHostels(query);
+      const result = await searchHostels(query, false); // false = manual search
 
       if (result.success) {
         toast({
@@ -179,21 +218,34 @@ const Index = () => {
         <section className="px-6 py-8 md:py-12 bg-white rounded-t-[2rem] -mt-6 relative z-10">
           <h2 className="text-2xl md:text-3xl font-bold mb-2">Hostels just for you</h2>
           <p className="text-muted-foreground mb-6 md:mb-8 text-sm md:text-base">
-            Social and pet-friendly hostels in Mexico City
+            {profileLoading ? 'Loading your preferences...' : 'Personalized hostels based on your profile'}
           </p>
-          <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide">
-            {displayHostels.map((hostel, index) => (
-              <HostelCard
-                key={index}
-                name={hostel.name}
-                image={hostel.image}
-                rating={hostel.rating}
-                distance={hostel.distance}
-                price={hostel.price}
-                benefits={hostel.benefits}
-              />
-            ))}
-          </div>
+          {(isSearching || profileLoading) && displayHostels.length === 0 ? (
+            <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="min-w-[320px] space-y-3">
+                  <Skeleton className="h-48 w-full rounded-2xl" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide">
+              {displayHostels.map((hostel, index) => (
+                <HostelCard
+                  key={index}
+                  name={hostel.name}
+                  image={hostel.image}
+                  rating={hostel.rating}
+                  distance={hostel.distance}
+                  price={hostel.price}
+                  benefits={hostel.benefits}
+                  bookingLink={hostel.bookingLink}
+                />
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Tell us what you want Section */}

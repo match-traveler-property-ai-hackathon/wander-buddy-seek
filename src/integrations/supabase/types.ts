@@ -14,7 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          age_range: string | null
+          budget_range: Json | null
+          created_at: string
+          email: string | null
+          favorite_hostels: string[] | null
+          hostel_preferences: Json | null
+          id: string
+          interests: string[] | null
+          last_search_query: string | null
+          name: string | null
+          preferred_destinations: string[] | null
+          search_history: Json[] | null
+          travel_style: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          age_range?: string | null
+          budget_range?: Json | null
+          created_at?: string
+          email?: string | null
+          favorite_hostels?: string[] | null
+          hostel_preferences?: Json | null
+          id?: string
+          interests?: string[] | null
+          last_search_query?: string | null
+          name?: string | null
+          preferred_destinations?: string[] | null
+          search_history?: Json[] | null
+          travel_style?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          age_range?: string | null
+          budget_range?: Json | null
+          created_at?: string
+          email?: string | null
+          favorite_hostels?: string[] | null
+          hostel_preferences?: Json | null
+          id?: string
+          interests?: string[] | null
+          last_search_query?: string | null
+          name?: string | null
+          preferred_destinations?: string[] | null
+          search_history?: Json[] | null
+          travel_style?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

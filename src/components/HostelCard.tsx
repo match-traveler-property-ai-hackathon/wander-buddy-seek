@@ -9,6 +9,7 @@ interface HostelCardProps {
   distance: string;
   price: number;
   benefits: string[];
+  bookingLink?: string;
 }
 
 export const HostelCard = ({
@@ -18,9 +19,19 @@ export const HostelCard = ({
   distance,
   price,
   benefits,
+  bookingLink,
 }: HostelCardProps) => {
+  const handleClick = () => {
+    if (bookingLink) {
+      window.open(bookingLink, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
-    <Card className="min-w-[320px] md:min-w-0 overflow-hidden border-0 shadow-[var(--shadow-card)] rounded-2xl hover:shadow-lg transition-shadow">
+    <Card 
+      className="min-w-[320px] md:min-w-0 overflow-hidden border-0 shadow-[var(--shadow-card)] rounded-2xl hover:shadow-lg transition-shadow cursor-pointer"
+      onClick={handleClick}
+    >
       <div className="relative h-48 overflow-hidden">
         <img
           src={image}

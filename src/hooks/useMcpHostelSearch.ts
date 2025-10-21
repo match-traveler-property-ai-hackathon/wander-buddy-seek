@@ -8,22 +8,24 @@ interface Hostel {
   distance: string;
   price: number;
   benefits: string[];
+  bookingLink?: string;
 }
 
 export const useMcpHostelSearch = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [hostels, setHostels] = useState<Hostel[]>([]);
 
-  const searchHostels = async (query: string) => {
+  const searchHostels = async (query: string, profileBased: boolean = false) => {
     if (!query.trim()) return { success: false, count: 0 };
 
     setIsSearching(true);
     console.log('Starting MCP hostel search:', query);
+    console.log('Profile-based:', profileBased);
 
     try {
       // Call edge function which handles MCP server connection and Claude integration
       const { data, error } = await supabase.functions.invoke('hostel-search', {
-        body: { query }
+        body: { query, profileBased }
       });
 
       console.log('Search response:', data);

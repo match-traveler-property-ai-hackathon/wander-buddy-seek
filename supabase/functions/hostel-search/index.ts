@@ -1,4 +1,5 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -14,8 +15,9 @@ serve(async (req) => {
   }
 
   try {
-    const { query } = await req.json();
+    const { query, profileBased } = await req.json();
     console.log('Received hostel search query:', query);
+    console.log('Profile-based search:', profileBased);
 
     const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
     if (!ANTHROPIC_API_KEY) {
@@ -31,6 +33,7 @@ serve(async (req) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream'
         },
         body: JSON.stringify({
           jsonrpc: '2.0',
@@ -61,18 +64,37 @@ serve(async (req) => {
       console.warn('Error fetching MCP tools:', mcpError);
     }
 
-    // Step 2: Build Claude request with MCP tools
+    // Step 2: Build Claude request with MCP tools and enhanced prompt for profile-based searches
+    const systemPrompt = profileBased 
+      ? `You are a personalized hostel recommendation assistant with access to the Hostelworld inventory system.
+
+This is a PROFILE-BASED search. The user query contains their travel preferences, interests, and requirements.
+
+Your task:
+1. Carefully analyze the user's preferences mentioned in the query
+2. ${mcpTools.length > 0 ? 'Use the available MCP tools to search the Hostelworld inventory' : 'Search for relevant hostels based on the query'}
+3. Find hostels that BEST MATCH the user's:
+   - Interests (e.g., surfing, partying, culture)
+   - Preferred amenities (e.g., bar, pool, social events)
+   - Destination preferences
+   - Budget range
+4. Prioritize hostels with good ratings (7+ preferred)
+5. Include hostels with availability
+
+User Query: "${query}"`
+      : `You are a hostel search assistant with access to the Hostelworld inventory system.
+
+Find hostels matching this query: "${query}"
+
+${mcpTools.length > 0 ? 'Use the available MCP tools to search the Hostelworld inventory.' : 'Search for relevant hostels based on the query.'}`;
+
     const claudeRequest: any = {
       model: 'claude-sonnet-4-5',
       max_tokens: 4096,
       messages: [
         {
           role: 'user',
-          content: `You are a hostel search assistant with access to the Hostelworld inventory system via MCP tools.
-
-Find hostels matching this query: "${query}"
-
-${mcpTools.length > 0 ? 'Use the available MCP tools to search the Hostelworld inventory.' : 'Search for relevant hostels based on the query.'}
+          content: `${systemPrompt}
 
 After getting results, format them as a JSON array with this structure:
 [
@@ -82,7 +104,8 @@ After getting results, format them as a JSON array with this structure:
     "distance": "0.5km from center",
     "price": 25,
     "benefits": ["benefit1", "benefit2", "benefit3"],
-    "image": "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=400"
+    "image": "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=400",
+    "bookingLink": "https://www.hostelworld.com/..."
   }
 ]
 
