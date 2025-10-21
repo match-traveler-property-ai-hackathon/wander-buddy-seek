@@ -142,25 +142,130 @@ Return only the JSON array, no markdown or explanation.`
     console.log('Claude response:', JSON.stringify(data, null, 2));
 
     // Step 4: Handle tool calls if Claude wants to use MCP tools
+    let finalContent = '';
+    
     if (data.stop_reason === 'tool_use') {
       console.log('Claude requested tool use, processing...');
-      // In a full implementation, we would:
-      // 1. Extract tool calls from data.content
-      // 2. Execute those calls against the MCP server
-      // 3. Send results back to Claude
-      // 4. Get final response
-      // For now, we'll use the initial response
+      
+      // Extract tool calls from Claude's response
+      const toolUses = data.content.filter((block: any) => block.type === 'tool_use');
+      console.log('Tool uses:', JSON.stringify(toolUses, null, 2));
+      
+      // Execute each tool call against the MCP server
+      const toolResults = [];
+      for (const toolUse of toolUses) {
+        console.log(`Executing tool: ${toolUse.name} with input:`, toolUse.input);
+        
+        try {
+          const mcpToolResponse = await fetch(MCP_SERVER_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+              jsonrpc: '2.0',
+              method: 'tools/call',
+              params: {
+                name: toolUse.name,
+                arguments: toolUse.input
+              },
+              id: toolUse.id
+            })
+          });
+          
+          const mcpResult = await mcpToolResponse.json();
+          console.log('MCP tool result:', JSON.stringify(mcpResult, null, 2));
+          
+          toolResults.push({
+            type: 'tool_result',
+            tool_use_id: toolUse.id,
+            content: JSON.stringify(mcpResult.result || mcpResult)
+          });
+        } catch (toolError) {
+          console.error(`Error executing tool ${toolUse.name}:`, toolError);
+          toolResults.push({
+            type: 'tool_result',
+            tool_use_id: toolUse.id,
+            content: JSON.stringify({ error: toolError instanceof Error ? toolError.message : 'Unknown error' }),
+            is_error: true
+          });
+        }
+      }
+      
+      // Send tool results back to Claude for final response
+      console.log('Sending tool results back to Claude...');
+      const finalRequest = {
+        model: 'claude-sonnet-4-5',
+        max_tokens: 4096,
+        messages: [
+          {
+            role: 'user',
+            content: `${systemPrompt}
+
+After getting results, format them as a JSON array with this structure:
+[
+  {
+    "name": "hostel name",
+    "rating": 4.5,
+    "distance": "0.5km from center",
+    "price": 25,
+    "benefits": ["benefit1", "benefit2", "benefit3"],
+    "image": "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=400",
+    "bookingLink": "https://www.hostelworld.com/..."
+  }
+]
+
+Return only the JSON array, no markdown or explanation.`
+          },
+          {
+            role: 'assistant',
+            content: data.content
+          },
+          {
+            role: 'user',
+            content: toolResults
+          }
+        ],
+        tools: mcpTools
+      };
+      
+      const finalResponse = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify(finalRequest),
+      });
+      
+      if (!finalResponse.ok) {
+        const errorText = await finalResponse.text();
+        console.error('Claude final API error:', finalResponse.status, errorText);
+        throw new Error(`Claude final API error: ${finalResponse.status}`);
+      }
+      
+      const finalData = await finalResponse.json();
+      console.log('Claude final response:', JSON.stringify(finalData, null, 2));
+      
+      // Extract the text content from final response
+      const textBlock = finalData.content.find((block: any) => block.type === 'text');
+      finalContent = textBlock?.text || '';
+    } else {
+      // No tool use, extract text directly
+      const textBlock = data.content.find((block: any) => block.type === 'text');
+      finalContent = textBlock?.text || '';
     }
 
-    const content = data.content[0].text;
-    console.log('Claude content:', content);
+    console.log('Final content:', finalContent);
 
     // Parse the JSON response from Claude
     let hostels;
     try {
       // Remove markdown code blocks if present
-      const jsonMatch = content.match(/```json\n?([\s\S]*?)\n?```/) || content.match(/\[[\s\S]*\]/);
-      const jsonString = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : content;
+      const jsonMatch = finalContent.match(/```json\n?([\s\S]*?)\n?```/) || finalContent.match(/\[[\s\S]*\]/);
+      const jsonString = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : finalContent;
       hostels = JSON.parse(jsonString);
     } catch (parseError) {
       console.error('Failed to parse Claude response as JSON:', parseError);
