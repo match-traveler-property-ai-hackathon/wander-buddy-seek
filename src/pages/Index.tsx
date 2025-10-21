@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Search, Loader2, ChevronLeft, ChevronRight, Sparkles, Building2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMcpHostelSearch } from "@/hooks/useMcpHostelSearch";
@@ -406,19 +407,84 @@ const Index = () => {
           </div>
 
           {/* MCP Search Results Display */}
-          {mcpResponse && (
-            <div className="mt-8">
-              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
-                MCP Server Response
-              </h3>
-              <div className="bg-muted rounded-lg p-4 overflow-x-auto">
-                <pre className="text-xs text-foreground whitespace-pre-wrap">
-                  {JSON.stringify(mcpResponse, null, 2)}
-                </pre>
+          {mcpResponse && (() => {
+            // Map MCP response to hostel cards
+            const mapMcpToHostels = () => {
+              try {
+                const content = mcpResponse?.content;
+                
+                // Try to parse the content if it's a string
+                let hostelsData = [];
+                if (typeof content === 'string') {
+                  try {
+                    const parsed = JSON.parse(content);
+                    hostelsData = Array.isArray(parsed) ? parsed : (parsed.hostels || parsed.properties || [parsed]);
+                  } catch {
+                    // If parsing fails, return empty array
+                    return [];
+                  }
+                } else if (Array.isArray(content)) {
+                  hostelsData = content;
+                } else if (content?.hostels || content?.properties) {
+                  hostelsData = content.hostels || content.properties;
+                } else if (typeof content === 'object') {
+                  hostelsData = [content];
+                }
+
+                // Default images to cycle through
+                const defaultImages = [hostel1Img, hostel2Img, hostel3Img, hostel4Img, hostel5Img];
+
+                return hostelsData.slice(0, 10).map((hostel: any, index: number) => ({
+                  name: hostel.name || hostel.propertyName || hostel.hostelName || `Property ${index + 1}`,
+                  image: hostel.image || hostel.imageUrl || hostel.photo || defaultImages[index % defaultImages.length],
+                  rating: parseFloat(hostel.rating || hostel.score || hostel.reviewScore || '4.5'),
+                  distance: hostel.distance || hostel.distanceFromCenter || hostel.location || 'City center',
+                  price: parseInt(hostel.price || hostel.pricePerNight || hostel.lowestPricePerNight || '25'),
+                  benefits: hostel.facilities || hostel.amenities || hostel.features || ['WiFi', 'Social'],
+                  bookingLink: hostel.bookingUrl || hostel.url || hostel.link
+                }));
+              } catch (error) {
+                console.error('Error mapping MCP response:', error);
+                return [];
+              }
+            };
+
+            const mappedHostels = mapMcpToHostels();
+
+            return (
+              <div className="mt-8">
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  AI Search Results
+                </h3>
+                {mappedHostels.length > 0 ? (
+                  <Carousel className="w-full">
+                    <CarouselContent>
+                      {mappedHostels.map((hostel, index) => (
+                        <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                          <HostelCard
+                            name={hostel.name}
+                            image={hostel.image}
+                            rating={hostel.rating}
+                            distance={hostel.distance}
+                            price={hostel.price}
+                            benefits={hostel.benefits}
+                            bookingLink={hostel.bookingLink}
+                          />
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                  </Carousel>
+                ) : (
+                  <div className="bg-muted rounded-lg p-4">
+                    <p className="text-sm text-muted-foreground">No hostels found. Try adjusting your search.</p>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+            );
+          })()}
         </section>
 
         {/* Travel Plans Section */}
