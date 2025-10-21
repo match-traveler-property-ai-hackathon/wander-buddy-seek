@@ -107,6 +107,48 @@ async function getMcpTools(): Promise<any[]> {
   return [];
 }
 
+// Analyze query to determine which fields are needed
+function analyzeQueryForFields(query: string): {
+  needsFacilities: boolean;
+  needsRooms: boolean;
+  needsOverview: boolean;
+  needsRatingBreakdown: boolean;
+} {
+  const lowerQuery = query.toLowerCase();
+  
+  // Keywords that indicate we need facilities data
+  const facilityKeywords = [
+    'facilities', 'amenities', 'wifi', 'pool', 'bar', 'kitchen', 'breakfast',
+    'laundry', 'parking', 'gym', 'locker', 'air conditioning', 'ac',
+    'coworking', 'workspace', 'social', 'terrace', 'rooftop', 'common room'
+  ];
+  
+  // Keywords that indicate we need rooms data
+  const roomKeywords = [
+    'room', 'dorm', 'private', 'ensuite', 'bed', 'bedroom', 'shared',
+    'female only', 'male only', 'mixed', 'capacity', 'bunk'
+  ];
+  
+  // Keywords that indicate we need detailed overview
+  const overviewKeywords = [
+    'atmosphere', 'vibe', 'description', 'about', 'story', 'experience',
+    'style', 'culture', 'environment', 'unique', 'special'
+  ];
+  
+  // Keywords that indicate we need detailed ratings
+  const ratingKeywords = [
+    'rating', 'review', 'score', 'clean', 'cleanliness', 'security',
+    'staff', 'location rating', 'value', 'safety'
+  ];
+  
+  return {
+    needsFacilities: facilityKeywords.some(keyword => lowerQuery.includes(keyword)),
+    needsRooms: roomKeywords.some(keyword => lowerQuery.includes(keyword)),
+    needsOverview: overviewKeywords.some(keyword => lowerQuery.includes(keyword)),
+    needsRatingBreakdown: ratingKeywords.some(keyword => lowerQuery.includes(keyword))
+  };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -325,37 +367,62 @@ Return only the JSON array, no markdown or explanation.`;
           const mcpResult = await mcpToolResponse.json();
           console.log('MCP tool result received');
           
+          // Analyze query to determine which fields to include
+          const fieldNeeds = analyzeQueryForFields(query);
+          console.log('Field analysis:', fieldNeeds);
+          
           // Optimize token usage by only including essential fields
           let summarizedResult = mcpResult;
           
           if (mcpResult.result?.structuredContent?.hostels) {
             const hostels = mcpResult.result.structuredContent.hostels;
-            console.log(`Summarizing ${hostels.length} hostels with extended fields`);
+            console.log(`Summarizing ${hostels.length} hostels with selective fields`);
             
-            // Include requested fields for Claude sorting/processing
+            // Build hostel object with conditionally included fields
             summarizedResult = {
               result: {
                 structuredContent: {
-                  hostels: hostels.map((h: any) => ({
-                    id: h.id,
-                    name: h.name,
-                    lowestPricePerNight: h.lowestPricePerNight,
-                    images: h.images?.[0] ? [{ 
-                      prefix: h.images[0].prefix,
-                      suffix: h.images[0].suffix 
-                    }] : [],
-                    facilities: h.facilities,
-                    bookingLink: h.bookingLink,
-                    overallRating: h.overallRating,
-                    ratingBreakdown: h.ratingBreakdown,
-                    distance: h.distance,
-                    rooms: h.rooms,
-                    overview: h.overview
-                  }))
+                  hostels: hostels.map((h: any) => {
+                    const baseData: any = {
+                      id: h.id,
+                      name: h.name,
+                      lowestPricePerNight: h.lowestPricePerNight,
+                      images: h.images?.[0] ? [{ 
+                        prefix: h.images[0].prefix,
+                        suffix: h.images[0].suffix 
+                      }] : [],
+                      bookingLink: h.bookingLink,
+                      overallRating: h.overallRating,
+                      distance: h.distance
+                    };
+                    
+                    // Conditionally add fields based on query analysis
+                    if (fieldNeeds.needsFacilities && h.facilities) {
+                      baseData.facilities = h.facilities;
+                    }
+                    if (fieldNeeds.needsRooms && h.rooms) {
+                      baseData.rooms = h.rooms;
+                    }
+                    if (fieldNeeds.needsOverview && h.overview) {
+                      baseData.overview = h.overview;
+                    }
+                    if (fieldNeeds.needsRatingBreakdown && h.ratingBreakdown) {
+                      baseData.ratingBreakdown = h.ratingBreakdown;
+                    }
+                    
+                    return baseData;
+                  })
                 }
               }
             };
-            console.log(`Prepared ${hostels.length} hostels with extended fields for Claude`);
+            
+            const includedFields = ['basic info'];
+            if (fieldNeeds.needsFacilities) includedFields.push('facilities');
+            if (fieldNeeds.needsRooms) includedFields.push('rooms');
+            if (fieldNeeds.needsOverview) includedFields.push('overview');
+            if (fieldNeeds.needsRatingBreakdown) includedFields.push('rating breakdown');
+            
+            console.log(`Prepared ${hostels.length} hostels with: ${includedFields.join(', ')}`);
           }
           
           toolResults.push({
