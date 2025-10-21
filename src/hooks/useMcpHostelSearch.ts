@@ -12,6 +12,12 @@ export const useMcpHostelSearch = () => {
 
     setIsSearching(true);
     setSearchStage('ai');
+    
+    // Clear previous search results when starting a new search
+    if (!profileBased) {
+      setAiSearchResults(null);
+    }
+    
     console.log('Starting MCP hostel search:', query);
     console.log('Profile-based:', profileBased);
 
