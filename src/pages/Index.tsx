@@ -312,9 +312,9 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Tell us what you want Section */}
+        {/* AI Search Section */}
         <section className="px-6 py-8 md:py-12 bg-white rounded-2xl mb-6">
-          <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Tell us what you want</h2>
+          <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">AI Search</h2>
           
           <div className="flex gap-2 mb-4 max-w-2xl">
             <div className="relative flex-1">
