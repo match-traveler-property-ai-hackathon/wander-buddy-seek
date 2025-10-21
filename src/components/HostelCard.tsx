@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { MapPin, Star } from "lucide-react";
 
 interface HostelCardProps {
@@ -21,7 +22,8 @@ export const HostelCard = ({
   benefits,
   bookingLink,
 }: HostelCardProps) => {
-  const handleClick = () => {
+  const handleBookNow = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (bookingLink) {
       window.open(bookingLink, '_blank', 'noopener,noreferrer');
     }
@@ -29,8 +31,7 @@ export const HostelCard = ({
 
   return (
     <Card 
-      className="md:min-w-[320px] md:max-w-[320px] overflow-hidden border-0 shadow-[var(--shadow-card)] rounded-2xl hover:shadow-lg transition-shadow cursor-pointer"
-      onClick={handleClick}
+      className="md:min-w-[320px] md:max-w-[320px] overflow-hidden border-0 shadow-[var(--shadow-card)] rounded-2xl hover:shadow-lg transition-shadow"
     >
       <div className="relative h-48 overflow-hidden">
         <img
@@ -68,9 +69,20 @@ export const HostelCard = ({
         </div>
 
         <div className="pt-2 border-t">
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-bold text-primary">€{price}</span>
-            <span className="text-sm text-muted-foreground">/night</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-bold text-primary">€{price}</span>
+              <span className="text-sm text-muted-foreground">/night</span>
+            </div>
+            {bookingLink && (
+              <Button 
+                onClick={handleBookNow}
+                size="sm"
+                className="px-4"
+              >
+                Book Now
+              </Button>
+            )}
           </div>
         </div>
       </div>
