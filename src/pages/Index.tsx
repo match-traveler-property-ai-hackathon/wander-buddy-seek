@@ -216,15 +216,17 @@ const Index = () => {
 
       <main className="max-w-7xl mx-auto">
         {/* Hostels Section */}
-        <section className="px-6 py-8 md:py-12 mb-6 bg-white rounded-t-[2rem] rounded-b-2xl -mt-6 relative z-10">
-          <h2 className="text-2xl md:text-3xl font-bold mb-2">Hostels just for you</h2>
-          <p className="text-muted-foreground mb-6 md:mb-8 text-sm md:text-base">
-            {profileLoading ? 'Loading your preferences...' : 'Personalized hostels based on your profile'}
-          </p>
+        <section className="py-8 md:py-12 mb-6 bg-white rounded-t-[2rem] rounded-b-2xl -mt-6 relative z-10">
+          <div className="px-6">
+            <h2 className="text-2xl md:text-3xl font-bold mb-2">Hostels just for you</h2>
+            <p className="text-muted-foreground mb-6 md:mb-8 text-sm md:text-base">
+              {profileLoading ? 'Loading your preferences...' : 'Personalized hostels based on your profile'}
+            </p>
+          </div>
           {(isSearching || profileLoading) && displayHostels.length === 0 ? (
-            <div className="grid grid-cols-1 md:flex md:gap-4 md:overflow-x-auto gap-4 pb-4 md:-mx-6 md:px-6 scrollbar-hide">
+            <div className="grid grid-cols-1 md:flex md:gap-6 md:overflow-x-auto gap-4 pb-4 px-6 scrollbar-hide">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="md:min-w-[320px] space-y-3">
+                <div key={i} className="md:min-w-[320px] md:max-w-[320px] space-y-3">
                   <Skeleton className="h-48 w-full rounded-2xl" />
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-4 w-1/2" />
@@ -232,7 +234,7 @@ const Index = () => {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:flex md:gap-4 md:overflow-x-auto gap-4 pb-4 md:-mx-6 md:px-6 scrollbar-hide">
+            <div className="grid grid-cols-1 md:flex md:gap-6 md:overflow-x-auto gap-4 pb-4 px-6 scrollbar-hide">
               {displayHostels.map((hostel, index) => (
                 <HostelCard
                   key={index}
