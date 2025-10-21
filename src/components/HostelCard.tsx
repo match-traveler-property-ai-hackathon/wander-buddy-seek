@@ -82,7 +82,7 @@ export const HostelCard = ({
           {ratingBreakdown && ratingBreakdown.length > 0 && (
             <div className="space-y-1.5 mb-3">
               {ratingBreakdown
-                .filter(item => !item.category.toLowerCase().includes('ratingcount'))
+                .filter(item => !item.category.toLowerCase().includes('ratingscount'))
                 .map((item, index) => (
                   <div key={index} className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">{item.category}</span>
