@@ -13,11 +13,11 @@ const MCP_SERVER_URL = 'https://test.apigee.hostelworld.com/inventory-mcp-servic
 let mcpToolsCache: { tools: any[], timestamp: number } | null = null;
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-// Retry with exponential backoff for rate limiting (with reasonable caps)
+// Retry with exponential backoff for rate limiting and server errors
 async function fetchWithRetry(
   url: string,
   options: RequestInit,
-  maxRetries = 2,
+  maxRetries = 3,
   isToolResultCall = false
 ): Promise<Response> {
   let lastError: Error | null = null;
@@ -27,15 +27,14 @@ async function fetchWithRetry(
     try {
       const response = await fetch(url, options);
       
-      // If rate limited, wait and retry (but not for tool result calls to save time)
+      // Handle rate limiting (429)
       if (response.status === 429) {
         if (isToolResultCall) {
           console.log('Rate limited on tool result call, not retrying to avoid timeout');
-          return response; // Return the 429 response instead of retrying
+          return response;
         }
         
         const retryAfter = response.headers.get('retry-after');
-        // Cap retry-after to MAX_WAIT_TIME, and use exponential backoff otherwise
         let waitTime = retryAfter 
           ? Math.min(parseInt(retryAfter) * 1000, MAX_WAIT_TIME)
           : Math.min(1000 * Math.pow(2, attempt), 10000);
@@ -48,13 +47,24 @@ async function fetchWithRetry(
         }
       }
       
+      // Handle server errors (500, 502, 503, 504)
+      if (response.status >= 500 && response.status < 600) {
+        console.log(`Server error (${response.status}). Retrying in ${1000 * Math.pow(2, attempt)}ms (attempt ${attempt + 1}/${maxRetries})`);
+        
+        if (attempt < maxRetries - 1) {
+          const waitTime = Math.min(1000 * Math.pow(2, attempt), 5000);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          continue;
+        }
+      }
+      
       return response;
     } catch (error) {
       lastError = error instanceof Error ? error : new Error('Unknown error');
       console.error(`Attempt ${attempt + 1}/${maxRetries} failed:`, error);
       
       if (attempt < maxRetries - 1) {
-        const waitTime = Math.min(1000 * Math.pow(2, attempt), 5000); // Max 5s for network errors
+        const waitTime = Math.min(1000 * Math.pow(2, attempt), 5000);
         await new Promise(resolve => setTimeout(resolve, waitTime));
       }
     }
@@ -475,13 +485,13 @@ Return only the JSON array, no markdown or explanation.`;
           },
           body: JSON.stringify(finalRequest),
         },
-        2,
-        true
+        3,
+        false
       );
       
       if (!finalResponse.ok) {
         const errorText = await finalResponse.text();
-        console.error('Claude final API error:', finalResponse.status, errorText);
+        console.error('Claude sorting API error:', finalResponse.status, errorText);
         
         if (finalResponse.status === 429) {
           return new Response(JSON.stringify({ 
@@ -493,15 +503,17 @@ Return only the JSON array, no markdown or explanation.`;
           });
         }
         
-        throw new Error(`Claude final API error: ${finalResponse.status}`);
+        // For server errors (502, 503, etc.), fallback to unsorted results
+        console.warn(`Claude sorting failed with ${finalResponse.status}. Returning unsorted results as fallback.`);
+        // Don't throw - we'll use the unsorted MCP results as fallback
+      } else {
+        const finalData = await finalResponse.json();
+        console.log('Claude sorted results received');
+        
+        // Extract the text content from final response
+        const textBlock = finalData.content.find((block: any) => block.type === 'text');
+        finalContent = textBlock?.text || '';
       }
-      
-      const finalData = await finalResponse.json();
-      console.log('Claude sorted results received');
-      
-      // Extract the text content from final response
-      const textBlock = finalData.content.find((block: any) => block.type === 'text');
-      finalContent = textBlock?.text || '';
     }
 
     // Extract MCP response from tool results for frontend
