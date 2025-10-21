@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { SearchWidget } from "@/components/SearchWidget";
 import { TravelPlanCard } from "@/components/TravelPlanCard";
 import { RecentSearchItem } from "@/components/RecentSearchItem";
@@ -11,7 +11,8 @@ import { FiltersModal, FilterOptions } from "@/components/FiltersModal";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMcpHostelSearch } from "@/hooks/useMcpHostelSearch";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -42,6 +43,9 @@ const Index = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const hostelScrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
   const [filters, setFilters] = useState<FilterOptions>({
     priceRange: [0, 200],
     flexibleRates: false,
@@ -119,6 +123,34 @@ const Index = () => {
   ];
 
   const displayHostels = mcpHostels.length > 0 ? mcpHostels : defaultHostels;
+
+  // Check scroll position
+  const checkScroll = () => {
+    if (hostelScrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = hostelScrollRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (hostelScrollRef.current) {
+      const scrollAmount = 340; // card width + gap
+      hostelScrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  useEffect(() => {
+    const scrollContainer = hostelScrollRef.current;
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', checkScroll);
+      checkScroll();
+      return () => scrollContainer.removeEventListener('scroll', checkScroll);
+    }
+  }, [displayHostels]);
 
   // Automatic profile-based search on page load
   useEffect(() => {
@@ -217,38 +249,67 @@ const Index = () => {
       <main className="max-w-7xl mx-auto">
         {/* Hostels Section */}
         <section className="py-8 md:py-12 mb-6 bg-white rounded-t-[2rem] rounded-b-2xl -mt-6 relative z-10">
-          <div className="px-6">
+          <div className="px-6 mb-6 md:mb-8">
             <h2 className="text-2xl md:text-3xl font-bold mb-2">Hostels just for you</h2>
-            <p className="text-muted-foreground mb-6 md:mb-8 text-sm md:text-base">
+            <p className="text-muted-foreground text-sm md:text-base">
               {profileLoading ? 'Loading your preferences...' : 'Personalized hostels based on your profile'}
             </p>
           </div>
-          {(isSearching || profileLoading) && displayHostels.length === 0 ? (
-            <div className="grid grid-cols-1 md:flex md:gap-6 md:overflow-x-auto gap-4 pb-4 px-6 scrollbar-hide">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="md:min-w-[320px] md:max-w-[320px] space-y-3">
-                  <Skeleton className="h-48 w-full rounded-2xl" />
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:flex md:gap-6 md:overflow-x-auto gap-4 pb-4 px-6 scrollbar-hide">
-              {displayHostels.map((hostel, index) => (
-                <HostelCard
-                  key={index}
-                  name={hostel.name}
-                  image={hostel.image}
-                  rating={hostel.rating}
-                  distance={hostel.distance}
-                  price={hostel.price}
-                  benefits={hostel.benefits}
-                  bookingLink={hostel.bookingLink}
-                />
-              ))}
-            </div>
-          )}
+          <div className="relative">
+            {/* Left Arrow */}
+            {canScrollLeft && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-20 rounded-full bg-white shadow-lg hover:bg-white hover:shadow-xl"
+                onClick={() => scroll('left')}
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+            )}
+            
+            {/* Right Arrow */}
+            {canScrollRight && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-20 rounded-full bg-white shadow-lg hover:bg-white hover:shadow-xl"
+                onClick={() => scroll('right')}
+              >
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            )}
+
+            {(isSearching || profileLoading) && displayHostels.length === 0 ? (
+              <div className="grid grid-cols-1 md:flex md:gap-6 md:overflow-x-auto gap-4 pb-4 px-6 scrollbar-hide">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="md:min-w-[320px] md:max-w-[320px] space-y-3">
+                    <Skeleton className="h-48 w-full rounded-2xl" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div 
+                ref={hostelScrollRef}
+                className="grid grid-cols-1 md:flex md:gap-6 md:overflow-x-auto gap-4 pb-4 px-6 scrollbar-hide scroll-smooth"
+              >
+                {displayHostels.map((hostel, index) => (
+                  <HostelCard
+                    key={index}
+                    name={hostel.name}
+                    image={hostel.image}
+                    rating={hostel.rating}
+                    distance={hostel.distance}
+                    price={hostel.price}
+                    benefits={hostel.benefits}
+                    bookingLink={hostel.bookingLink}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </section>
 
         {/* Tell us what you want Section */}
