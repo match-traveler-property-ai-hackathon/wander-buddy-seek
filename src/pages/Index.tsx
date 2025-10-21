@@ -7,6 +7,8 @@ import { HostelCard } from "@/components/HostelCard";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import { DesktopNavigation } from "@/components/DesktopNavigation";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import barcelonaImg from "@/assets/barcelona.jpg";
 import sydneyImg from "@/assets/sydney.jpg";
 import londonImg from "@/assets/london.jpg";
@@ -57,9 +59,17 @@ const Index = () => {
         {/* Hostels Section */}
         <section className="px-6 py-8 md:py-12 bg-white rounded-t-[2rem] -mt-6 relative z-10">
           <h2 className="text-2xl md:text-3xl font-bold mb-2">Hostels just for you</h2>
-          <p className="text-muted-foreground mb-6 md:mb-8 text-sm md:text-base">
+          <p className="text-muted-foreground mb-4 md:mb-6 text-sm md:text-base">
             Social and pet-friendly hostels in Mexico City
           </p>
+          <div className="relative mb-6 md:mb-8 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Filter hostels by name or feature..."
+              className="pl-9"
+            />
+          </div>
           <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide">
             <HostelCard
               name="Casa Pepe"
