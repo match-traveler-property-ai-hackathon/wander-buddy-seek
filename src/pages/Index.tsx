@@ -7,6 +7,7 @@ import { InspiredCard } from "@/components/InspiredCard";
 import { HostelCard } from "@/components/HostelCard";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import { DesktopNavigation } from "@/components/DesktopNavigation";
+import { FiltersModal, FilterOptions } from "@/components/FiltersModal";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Search, Loader2 } from "lucide-react";
@@ -36,6 +37,13 @@ import hostel5Img from "@/assets/hostel5.jpg";
 const Index = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState<FilterOptions>({
+    priceRange: [0, 200],
+    promotions: false,
+    privateRooms: false,
+    sustainableHostels: false,
+    flexibleRates: false,
+  });
   const { 
     searchHostels, 
     isSearching, 
@@ -224,6 +232,9 @@ const Index = () => {
               >
                 Hostels on the mediterranean with a surf school nearby
               </button>
+            </div>
+            <div className="mt-4">
+              <FiltersModal filters={filters} onFiltersChange={setFilters} />
             </div>
           </div>
         </section>
