@@ -182,7 +182,8 @@ const Index = () => {
             .slice(0, 3)
         : undefined,
       bookingLink: hostel.bookingLink,
-      distance: hostel.distance?.value ? `${hostel.distance.value} ${hostel.distance.units} from centre` : undefined
+      distance: hostel.distance?.value ? `${hostel.distance.value} ${hostel.distance.units} from centre` : undefined,
+      reason: hostel.reason
     }));
   };
 

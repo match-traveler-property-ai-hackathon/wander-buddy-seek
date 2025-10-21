@@ -259,7 +259,8 @@ After getting results, format them as a JSON array with this structure:
     "price": 25,
     "benefits": ["benefit1", "benefit2", "benefit3"],
     "image": "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=400",
-    "bookingLink": "https://www.hostelworld.com/..."
+    "bookingLink": "https://www.hostelworld.com/...",
+    "reason": "Brief reason why this hostel matches user preferences (e.g., 'Great for surfers with board storage and beach access' or 'Perfect party hostel with nightly bar events')"
   }
 ]
 
@@ -282,7 +283,8 @@ Find hostels matching this query and format them as a JSON array with this struc
     "price": 25,
     "benefits": ["benefit1", "benefit2", "benefit3"],
     "image": "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=400",
-    "bookingLink": "https://www.hostelworld.com/..."
+    "bookingLink": "https://www.hostelworld.com/...",
+    "reason": "Brief reason why this hostel matches the search criteria"
   }
 ]
 

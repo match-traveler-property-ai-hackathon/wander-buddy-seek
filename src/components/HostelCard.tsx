@@ -15,6 +15,7 @@ interface HostelCardProps {
   price: number;
   ratingBreakdown?: RatingBreakdownItem[];
   bookingLink?: string;
+  reason?: string;
 }
 
 export const HostelCard = ({
@@ -25,6 +26,7 @@ export const HostelCard = ({
   price,
   ratingBreakdown,
   bookingLink,
+  reason,
 }: HostelCardProps) => {
   const handleBookNow = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -72,14 +74,21 @@ export const HostelCard = ({
       <div className="p-4 space-y-3">
         <div>
           <h3 className="font-bold text-lg mb-2">{name}</h3>
+          {reason && (
+            <p className="text-sm text-muted-foreground mb-3 italic">
+              {reason}
+            </p>
+          )}
           {ratingBreakdown && ratingBreakdown.length > 0 && (
             <div className="space-y-1.5 mb-3">
-              {ratingBreakdown.map((item, index) => (
-                <div key={index} className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{item.category}</span>
-                  {renderStars(item.rating)}
-                </div>
-              ))}
+              {ratingBreakdown
+                .filter(item => item.category !== 'RatingCount')
+                .map((item, index) => (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{item.category}</span>
+                    {renderStars(item.rating)}
+                  </div>
+                ))}
             </div>
           )}
         </div>
