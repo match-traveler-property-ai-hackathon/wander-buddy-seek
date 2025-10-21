@@ -132,7 +132,19 @@ const Index = () => {
     }
   ];
 
-  const displayHostels = defaultHostels;
+  // Process MCP response and map to hostel card format
+  const displayHostels = mcpResponse?.structuredContent?.results?.[0]?.hostels?.map((hostel: any) => ({
+    id: hostel.id,
+    name: hostel.name,
+    price: parseFloat(hostel.lowestPricePerNight?.value || '0'),
+    image: hostel.images?.[0] ? `https://${hostel.images[0].prefix}${hostel.images[0].suffix}` : hostel1Img,
+    rating: hostel.overallRating?.overall ? hostel.overallRating.overall / 10 : 4.5,
+    benefits: hostel.facilities?.slice(0, 3).flatMap((category: any) => 
+      category.facilities?.slice(0, 1).map((facility: any) => facility.name) || []
+    ).filter(Boolean).slice(0, 3) || ["Free WiFi"],
+    bookingLink: hostel.bookingLink,
+    distance: hostel.distance?.value ? `${hostel.distance.value} ${hostel.distance.units} from centre` : undefined
+  })) || defaultHostels;
 
   // Check scroll position
   const checkScroll = () => {
