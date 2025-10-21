@@ -461,7 +461,7 @@ const Index = () => {
           {/* MCP Search Results Display */}
           {mcpResponse && (() => {
             // Use the same mapped hostels from displayHostels (filter out defaults)
-            const searchResults = mcpResponse?.structuredContent?.results?.[0]?.hostels ? displayHostels : [];
+            const searchResults = mcpResponse?.structuredContent?.hostels ? displayHostels : [];
 
             return (
               <div className="mt-8 space-y-8">
