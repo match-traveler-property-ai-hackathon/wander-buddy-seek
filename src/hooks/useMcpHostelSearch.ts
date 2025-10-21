@@ -1,22 +1,12 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-interface Hostel {
-  name: string;
-  image: string;
-  rating: number;
-  distance: string;
-  price: number;
-  benefits: string[];
-  bookingLink?: string;
-}
-
 export const useMcpHostelSearch = () => {
   const [isSearching, setIsSearching] = useState(false);
-  const [hostels, setHostels] = useState<Hostel[]>([]);
+  const [mcpResponse, setMcpResponse] = useState<any>(null);
 
   const searchHostels = async (query: string, profileBased: boolean = false) => {
-    if (!query.trim()) return { success: false, count: 0 };
+    if (!query.trim()) return { success: false, message: 'Empty query' };
 
     setIsSearching(true);
     console.log('Starting MCP hostel search:', query);
@@ -35,11 +25,17 @@ export const useMcpHostelSearch = () => {
         throw error;
       }
 
-      if (data?.hostels && Array.isArray(data.hostels) && data.hostels.length > 0) {
-        setHostels(data.hostels);
-        return { success: true, count: data.hostels.length };
+      if (data?.message === "No results found on Inv MCP") {
+        console.log('No results found on Inv MCP');
+        setMcpResponse(null);
+        return { success: false, message: 'No results found on Inv MCP' };
+      }
+
+      if (data?.mcpResponse) {
+        setMcpResponse(data.mcpResponse);
+        return { success: true, message: 'Results found' };
       } else {
-        return { success: false, count: 0 };
+        return { success: false, message: 'No MCP response' };
       }
     } catch (error) {
       console.error('Error in MCP hostel search:', error);
@@ -52,6 +48,6 @@ export const useMcpHostelSearch = () => {
   return {
     searchHostels,
     isSearching,
-    hostels
+    mcpResponse
   };
 };

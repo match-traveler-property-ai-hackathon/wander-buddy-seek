@@ -72,7 +72,7 @@ const Index = () => {
   const { 
     searchHostels, 
     isSearching, 
-    hostels: mcpHostels
+    mcpResponse
   } = useMcpHostelSearch();
   const { profile, loading: profileLoading } = useUserProfile();
 
@@ -125,7 +125,7 @@ const Index = () => {
     }
   ];
 
-  const displayHostels = mcpHostels.length > 0 ? mcpHostels : defaultHostels;
+  const displayHostels = defaultHostels;
 
   // Check scroll position
   const checkScroll = () => {
@@ -175,8 +175,10 @@ const Index = () => {
       if (result.success) {
         toast({
           title: "Welcome back!",
-          description: `Found ${result.count} hostels based on your preferences.`,
+          description: `Found results based on your preferences.`,
         });
+      } else {
+        console.log(result.message || 'No results');
       }
     } catch (error) {
       console.error('Profile search failed:', error);
@@ -201,12 +203,12 @@ const Index = () => {
       if (result.success) {
         toast({
           title: "Search complete!",
-          description: `Found ${result.count} hostels matching your criteria`,
+          description: result.message || "Found results matching your criteria",
         });
       } else {
         toast({
           title: "No results found",
-          description: "Try adjusting your search criteria",
+          description: result.message || "Try adjusting your search criteria",
         });
       }
     } catch (error) {
@@ -403,51 +405,16 @@ const Index = () => {
           </div>
 
           {/* MCP Search Results Display */}
-          {mcpHostels.length > 0 && (
+          {mcpResponse && (
             <div className="mt-8">
               <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" />
-                Search Results
+                MCP Server Response
               </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Claude analyzed your request and selected the best tools from the MCP server to find these hostels:
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {mcpHostels.map((hostel, index) => (
-                  <div key={index} className="bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
-                    <img 
-                      src={hostel.image} 
-                      alt={hostel.name}
-                      className="w-full h-40 object-cover"
-                    />
-                    <div className="p-4">
-                      <h4 className="font-semibold text-lg mb-2">{hostel.name}</h4>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                        <span className="bg-primary/10 text-primary px-2 py-1 rounded-full font-medium">
-                          ⭐ {hostel.rating}
-                        </span>
-                        <span>{hostel.distance}</span>
-                      </div>
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {hostel.benefits.slice(0, 3).map((benefit: string, idx: number) => (
-                          <span key={idx} className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded-full">
-                            {benefit}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xl font-bold">${hostel.price}</span>
-                        {hostel.bookingLink && (
-                          <Button size="sm" asChild>
-                            <a href={hostel.bookingLink} target="_blank" rel="noopener noreferrer">
-                              Book
-                            </a>
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <div className="bg-muted rounded-lg p-4 overflow-x-auto">
+                <pre className="text-xs text-foreground whitespace-pre-wrap">
+                  {JSON.stringify(mcpResponse, null, 2)}
+                </pre>
               </div>
             </div>
           )}

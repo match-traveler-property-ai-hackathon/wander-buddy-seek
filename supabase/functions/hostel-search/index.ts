@@ -323,99 +323,46 @@ Return only the JSON array, no markdown or explanation.`;
 
     console.log('Final content:', finalContent);
 
-    // Parse the JSON response from Claude
-    let hostels = [];
-    try {
-      // Remove markdown code blocks if present
-      const jsonMatch = finalContent.match(/```json\n?([\s\S]*?)\n?```/) || finalContent.match(/\[[\s\S]*\]/);
-      const jsonString = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : finalContent;
-      hostels = JSON.parse(jsonString);
-      console.log('Successfully parsed hostels from Claude response:', hostels.length);
-    } catch (parseError) {
-      console.error('Failed to parse Claude response as JSON:', parseError);
-      console.log('Attempting to extract hostels from tool results...');
+    // Extract raw MCP server responses from tool results
+    let mcpResponse = null;
+    let hasResults = false;
+    
+    if (data.stop_reason === 'tool_use' && toolResults && toolResults.length > 0) {
+      console.log('Processing MCP tool results...');
       
-      // Try to extract hostel data directly from tool results if parsing fails
-      if (data.stop_reason === 'tool_use' && toolResults && toolResults.length > 0) {
-        try {
-          for (const toolResult of toolResults) {
-            const resultContent = JSON.parse(toolResult.content);
-            
-            // Check if this is a successful hostel search result
-            if (resultContent && resultContent.content) {
-              const content = Array.isArray(resultContent.content) 
-                ? resultContent.content 
-                : [resultContent.content];
-              
-              for (const item of content) {
-                if (item.type === 'resource' && item.resource) {
-                  const resource = item.resource;
-                  
-                  // Extract hostel data from the resource
-                  if (resource.mimeType === 'application/json' && resource.text) {
-                    try {
-                      const hostelData = JSON.parse(resource.text);
-                      
-                      // Handle both single and array results
-                      const hostelArray = Array.isArray(hostelData) ? hostelData : [hostelData];
-                      
-                      for (const h of hostelArray) {
-                        if (h.name && h.rating) {
-                          hostels.push({
-                            name: h.name,
-                            rating: h.rating,
-                            distance: h.distance || 'N/A',
-                            price: h.price || h.lowestPricePerNight || 0,
-                            benefits: h.benefits || h.facilities || [],
-                            image: h.image || h.images?.[0] || 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=400',
-                            bookingLink: h.bookingLink || h.url
-                          });
-                        }
-                      }
-                    } catch (e) {
-                      console.error('Error parsing hostel resource text:', e);
-                    }
-                  }
-                }
-              }
-            }
-          }
+      try {
+        for (const toolResult of toolResults) {
+          const resultContent = JSON.parse(toolResult.content);
+          console.log('MCP Tool Result Content:', JSON.stringify(resultContent, null, 2));
           
-          if (hostels.length > 0) {
-            console.log('Successfully extracted', hostels.length, 'hostels from tool results');
+          // Check if this is a successful MCP result
+          if (resultContent && resultContent.content) {
+            mcpResponse = resultContent;
+            hasResults = true;
+            break;
           }
-        } catch (extractError) {
-          console.error('Error extracting hostels from tool results:', extractError);
         }
-      }
-      
-      // If we still have no hostels, use mock data
-      if (hostels.length === 0) {
-        console.log('No hostels found, using mock data');
-        hostels = [
-          {
-            name: "Mock Hostel Result",
-            rating: 4.5,
-            distance: "0.5km from center",
-            price: 25,
-            benefits: ["Free WiFi", "Social events", "Pet-friendly"],
-            image: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=400"
-          },
-          {
-            name: "Mock Hostel 2",
-            rating: 4.7,
-            distance: "1.2km from center",
-            price: 30,
-            benefits: ["Rooftop bar", "Kitchen", "Bike rental"],
-            image: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=400"
-          }
-        ];
+      } catch (extractError) {
+        console.error('Error extracting MCP results:', extractError);
       }
     }
 
-    console.log('Returning hostels:', hostels);
+    // Return the raw MCP response or a "no results" message
+    if (!hasResults || !mcpResponse) {
+      console.log('No results found on Inv MCP');
+      return new Response(JSON.stringify({ 
+        message: "No results found on Inv MCP",
+        mcpResponse: null 
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
-    return new Response(JSON.stringify({ hostels }), {
+    console.log('Returning raw MCP response');
+    return new Response(JSON.stringify({ 
+      message: "Results found",
+      mcpResponse: mcpResponse 
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
