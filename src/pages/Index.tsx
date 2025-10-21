@@ -348,7 +348,7 @@ const Index = () => {
             </div>
           </div>
           
-          <div className="flex gap-2 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide">
+          <div className="flex flex-col md:flex-row gap-2 md:overflow-x-auto pb-4 md:-mx-6 md:px-6 scrollbar-hide">
             <button 
               onClick={() => {
                 const query = "Find me a hostel for tonight nearby";
