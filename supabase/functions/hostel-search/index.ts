@@ -81,21 +81,6 @@ Your task:
 4. Prioritize hostels with good ratings (7+ preferred)
 5. Include hostels with availability
 
-User Query: "${query}"`
-      : `You are a hostel search assistant with access to the Hostelworld inventory system.
-
-Find hostels matching this query: "${query}"
-
-${mcpTools.length > 0 ? 'Use the available MCP tools to search the Hostelworld inventory.' : 'Search for relevant hostels based on the query.'}`;
-
-    const claudeRequest: any = {
-      model: 'claude-sonnet-4-5',
-      max_tokens: 4096,
-      messages: [
-        {
-          role: 'user',
-          content: `${systemPrompt}
-
 After getting results, format them as a JSON array with this structure:
 [
   {
@@ -110,6 +95,33 @@ After getting results, format them as a JSON array with this structure:
 ]
 
 Return only the JSON array, no markdown or explanation.`
+      : `You are a hostel search assistant with access to the Hostelworld inventory system.
+
+Find hostels matching this query and format them as a JSON array with this structure:
+[
+  {
+    "name": "hostel name",
+    "rating": 4.5,
+    "distance": "0.5km from center",
+    "price": 25,
+    "benefits": ["benefit1", "benefit2", "benefit3"],
+    "image": "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=400",
+    "bookingLink": "https://www.hostelworld.com/..."
+  }
+]
+
+${mcpTools.length > 0 ? 'Use the available MCP tools to search the Hostelworld inventory.' : 'Search for relevant hostels based on the query.'}
+
+Return only the JSON array, no markdown or explanation.`;
+
+    const claudeRequest: any = {
+      model: 'claude-sonnet-4-5',
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages: [
+        {
+          role: 'user',
+          content: query
         }
       ],
     };
@@ -198,25 +210,11 @@ Return only the JSON array, no markdown or explanation.`
       const finalRequest = {
         model: 'claude-sonnet-4-5',
         max_tokens: 4096,
+        system: systemPrompt,
         messages: [
           {
             role: 'user',
-            content: `${systemPrompt}
-
-After getting results, format them as a JSON array with this structure:
-[
-  {
-    "name": "hostel name",
-    "rating": 4.5,
-    "distance": "0.5km from center",
-    "price": 25,
-    "benefits": ["benefit1", "benefit2", "benefit3"],
-    "image": "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=400",
-    "bookingLink": "https://www.hostelworld.com/..."
-  }
-]
-
-Return only the JSON array, no markdown or explanation.`
+            content: query
           },
           {
             role: 'assistant',
