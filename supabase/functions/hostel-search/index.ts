@@ -48,12 +48,9 @@ serve(async (req) => {
         
         if (mcpData.result?.tools) {
           mcpTools = mcpData.result.tools.map((tool: any) => ({
-            type: 'function',
-            function: {
-              name: tool.name,
-              description: tool.description,
-              parameters: tool.inputSchema || { type: 'object', properties: {} }
-            }
+            name: tool.name,
+            description: tool.description,
+            input_schema: tool.inputSchema || { type: 'object', properties: {} }
           }));
           console.log('Extracted MCP tools:', JSON.stringify(mcpTools, null, 2));
         }
