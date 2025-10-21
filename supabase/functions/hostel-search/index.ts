@@ -290,7 +290,8 @@ Return only the JSON array, no markdown or explanation.`;
     console.log('Claude response:', JSON.stringify(data, null, 2));
 
     // Step 4: Handle tool calls if Claude wants to use MCP tools
-    let mcpResponse = null;
+    let finalContent = '';
+    let toolResults: any[] = [];
     
     if (data.stop_reason === 'tool_use') {
       console.log('Claude requested tool use, processing...');
@@ -299,8 +300,7 @@ Return only the JSON array, no markdown or explanation.`;
       const toolUses = data.content.filter((block: any) => block.type === 'tool_use');
       console.log('Tool uses:', JSON.stringify(toolUses, null, 2));
       
-      // Execute MCP tool calls directly and return results
-      // We don't need Claude to format the response - the frontend handles that
+      // Execute MCP tool calls
       for (const toolUse of toolUses) {
         console.log(`Executing tool: ${toolUse.name} with input:`, toolUse.input);
         
@@ -324,20 +324,135 @@ Return only the JSON array, no markdown or explanation.`;
           
           const mcpResult = await mcpToolResponse.json();
           console.log('MCP tool result received');
-          console.log('MCP result structure:', JSON.stringify(mcpResult, null, 2).substring(0, 500));
           
-          // Check for valid structured content
-          if (mcpResult.result?.structuredContent) {
-            mcpResponse = mcpResult.result;
-            console.log('Found valid MCP response with structuredContent');
-            console.log('structuredContent keys:', Object.keys(mcpResult.result.structuredContent));
-            console.log('Has hostels?:', !!mcpResult.result.structuredContent.hostels);
-            console.log('Has results?:', !!mcpResult.result.structuredContent.results);
-            break; // We found valid results, stop processing
+          // Optimize token usage by only including essential fields
+          let summarizedResult = mcpResult;
+          
+          if (mcpResult.result?.structuredContent?.hostels) {
+            const hostels = mcpResult.result.structuredContent.hostels;
+            console.log(`Summarizing ${hostels.length} hostels with extended fields`);
+            
+            // Include requested fields for Claude sorting/processing
+            summarizedResult = {
+              result: {
+                structuredContent: {
+                  hostels: hostels.map((h: any) => ({
+                    id: h.id,
+                    name: h.name,
+                    lowestPricePerNight: h.lowestPricePerNight,
+                    images: h.images?.[0] ? [{ 
+                      prefix: h.images[0].prefix,
+                      suffix: h.images[0].suffix 
+                    }] : [],
+                    facilities: h.facilities,
+                    bookingLink: h.bookingLink,
+                    overallRating: h.overallRating,
+                    ratingBreakdown: h.ratingBreakdown,
+                    distance: h.distance,
+                    rooms: h.rooms,
+                    overview: h.overview
+                  }))
+                }
+              }
+            };
+            console.log(`Prepared ${hostels.length} hostels with extended fields for Claude`);
           }
+          
+          toolResults.push({
+            type: 'tool_result',
+            tool_use_id: toolUse.id,
+            content: JSON.stringify(summarizedResult.result || summarizedResult)
+          });
         } catch (toolError) {
           console.error(`Error executing tool ${toolUse.name}:`, toolError);
+          toolResults.push({
+            type: 'tool_result',
+            tool_use_id: toolUse.id,
+            content: JSON.stringify({ error: toolError instanceof Error ? toolError.message : 'Unknown error' }),
+            is_error: true
+          });
         }
+      }
+      
+      // Send tool results back to Claude for sorting/formatting
+      console.log('Sending tool results to Claude for sorting...');
+      const finalRequest = {
+        model: 'claude-sonnet-4-5',
+        max_tokens: 2048,
+        system: `${systemPrompt}\n\nIMPORTANT: Sort the hostels based on how well they match the user's request. Consider rating, price, distance, and relevant facilities. Return results as-is without reformatting.`,
+        messages: [
+          {
+            role: 'user',
+            content: query
+          },
+          {
+            role: 'assistant',
+            content: data.content
+          },
+          {
+            role: 'user',
+            content: toolResults
+          }
+        ],
+        tools: mcpTools
+      };
+      
+      const finalResponse = await fetchWithRetry(
+        'https://api.anthropic.com/v1/messages', 
+        {
+          method: 'POST',
+          headers: {
+            'x-api-key': ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify(finalRequest),
+        },
+        2,
+        true
+      );
+      
+      if (!finalResponse.ok) {
+        const errorText = await finalResponse.text();
+        console.error('Claude final API error:', finalResponse.status, errorText);
+        
+        if (finalResponse.status === 429) {
+          return new Response(JSON.stringify({ 
+            error: 'Rate limit exceeded. Please wait a moment and try again.',
+            rateLimited: true
+          }), {
+            status: 429,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        throw new Error(`Claude final API error: ${finalResponse.status}`);
+      }
+      
+      const finalData = await finalResponse.json();
+      console.log('Claude sorted results received');
+      
+      // Extract the text content from final response
+      const textBlock = finalData.content.find((block: any) => block.type === 'text');
+      finalContent = textBlock?.text || '';
+    }
+
+    // Extract MCP response from tool results for frontend
+    let mcpResponse = null;
+    
+    if (toolResults && toolResults.length > 0) {
+      try {
+        for (const toolResult of toolResults) {
+          const resultContent = JSON.parse(toolResult.content);
+          
+          if (resultContent && resultContent.structuredContent) {
+            mcpResponse = resultContent;
+            console.log('Found valid MCP response with structuredContent');
+            break;
+          }
+        }
+      } catch (extractError) {
+        console.error('Error extracting MCP results:', extractError);
       }
     }
 
