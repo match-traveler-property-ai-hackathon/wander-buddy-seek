@@ -290,8 +290,7 @@ Return only the JSON array, no markdown or explanation.`;
     console.log('Claude response:', JSON.stringify(data, null, 2));
 
     // Step 4: Handle tool calls if Claude wants to use MCP tools
-    let finalContent = '';
-    let toolResults: any[] = [];
+    let mcpResponse = null;
     
     if (data.stop_reason === 'tool_use') {
       console.log('Claude requested tool use, processing...');
@@ -300,7 +299,8 @@ Return only the JSON array, no markdown or explanation.`;
       const toolUses = data.content.filter((block: any) => block.type === 'tool_use');
       console.log('Tool uses:', JSON.stringify(toolUses, null, 2));
       
-      // Execute each tool call against the MCP server
+      // Execute MCP tool calls directly and return results
+      // We don't need Claude to format the response - the frontend handles that
       for (const toolUse of toolUses) {
         console.log(`Executing tool: ${toolUse.name} with input:`, toolUse.input);
         
@@ -325,157 +325,20 @@ Return only the JSON array, no markdown or explanation.`;
           const mcpResult = await mcpToolResponse.json();
           console.log('MCP tool result received');
           
-          // CRITICAL: Reduce token usage by summarizing the response
-          // Only send essential data back to Claude, not the full response
-          let summarizedResult = mcpResult;
-          
-          if (mcpResult.result?.structuredContent?.results?.[0]?.hostels) {
-            const hostels = mcpResult.result.structuredContent.results[0].hostels;
-            console.log(`Summarizing ${hostels.length} hostels to reduce tokens`);
-            
-            // Keep only the exact fields needed - matching frontend mapping
-            summarizedResult = {
-              result: {
-                structuredContent: {
-                  results: [{
-                    query: mcpResult.result.structuredContent.results[0].query,
-                    hostels: hostels.map((h: any) => ({
-                      id: h.id,
-                      name: h.name,
-                      lowestPricePerNight: h.lowestPricePerNight,
-                      images: h.images?.[0] ? [{ 
-                        prefix: h.images[0].prefix,
-                        suffix: h.images[0].suffix 
-                      }] : [],
-                      facilities: h.facilities,
-                      bookingLink: h.bookingLink,
-                      overallRating: h.overallRating,
-                      distance: h.distance
-                    }))
-                  }]
-                }
-              }
-            };
-            console.log(`Reduced to essential fields for ${hostels.length} hostels`);
+          // Check for valid structured content
+          if (mcpResult.result?.structuredContent) {
+            mcpResponse = mcpResult.result;
+            console.log('Found valid MCP response with structuredContent');
+            break; // We found valid results, stop processing
           }
-          
-          // Store the FULL result for our response, but only send summarized to Claude
-          if (mcpResult.result && !mcpResult.error) {
-            console.log('Successful tool result received');
-          }
-          
-          toolResults.push({
-            type: 'tool_result',
-            tool_use_id: toolUse.id,
-            content: JSON.stringify(summarizedResult.result || summarizedResult)
-          });
         } catch (toolError) {
           console.error(`Error executing tool ${toolUse.name}:`, toolError);
-          toolResults.push({
-            type: 'tool_result',
-            tool_use_id: toolUse.id,
-            content: JSON.stringify({ error: toolError instanceof Error ? toolError.message : 'Unknown error' }),
-            is_error: true
-          });
         }
-      }
-      
-      // Send tool results back to Claude for final response
-      console.log('Sending tool results back to Claude...');
-      const finalRequest = {
-        model: 'claude-sonnet-4-5',
-        max_tokens: 4096,
-        system: systemPrompt,
-        messages: [
-          {
-            role: 'user',
-            content: query
-          },
-          {
-            role: 'assistant',
-            content: data.content
-          },
-          {
-            role: 'user',
-            content: toolResults
-          }
-        ],
-        tools: mcpTools
-      };
-      
-      const finalResponse = await fetchWithRetry(
-        'https://api.anthropic.com/v1/messages', 
-        {
-          method: 'POST',
-          headers: {
-            'x-api-key': ANTHROPIC_API_KEY,
-            'anthropic-version': '2023-06-01',
-            'content-type': 'application/json',
-          },
-          body: JSON.stringify(finalRequest),
-        },
-        2,
-        true // This is a tool result call, skip retries on 429 to avoid timeout
-      );
-      
-      if (!finalResponse.ok) {
-        const errorText = await finalResponse.text();
-        console.error('Claude final API error:', finalResponse.status, errorText);
-        
-        if (finalResponse.status === 429) {
-          return new Response(JSON.stringify({ 
-            error: 'Rate limit exceeded. Please wait a moment and try again.',
-            rateLimited: true
-          }), {
-            status: 429,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
-        }
-        
-        throw new Error(`Claude final API error: ${finalResponse.status}`);
-      }
-      
-      const finalData = await finalResponse.json();
-      console.log('Claude final response:', JSON.stringify(finalData, null, 2));
-      
-      // Extract the text content from final response
-      const textBlock = finalData.content.find((block: any) => block.type === 'text');
-      finalContent = textBlock?.text || '';
-    } else {
-      // No tool use, extract text directly
-      const textBlock = data.content.find((block: any) => block.type === 'text');
-      finalContent = textBlock?.text || '';
-    }
-
-    console.log('Final content:', finalContent);
-
-    // Extract raw MCP server responses from tool results
-    let mcpResponse = null;
-    let hasResults = false;
-    
-    if (data.stop_reason === 'tool_use' && toolResults && toolResults.length > 0) {
-      console.log('Processing MCP tool results...');
-      
-      try {
-        for (const toolResult of toolResults) {
-          const resultContent = JSON.parse(toolResult.content);
-          console.log('MCP Tool Result Content:', JSON.stringify(resultContent, null, 2));
-          
-          // Check if this is a successful MCP result with structured content
-          if (resultContent && resultContent.structuredContent) {
-            mcpResponse = resultContent;
-            hasResults = true;
-            console.log('Found valid MCP response with structuredContent');
-            break;
-          }
-        }
-      } catch (extractError) {
-        console.error('Error extracting MCP results:', extractError);
       }
     }
 
     // Return the raw MCP response or a "no results" message
-    if (!hasResults || !mcpResponse) {
+    if (!mcpResponse) {
       console.log('No results found on Inv MCP');
       return new Response(JSON.stringify({ 
         message: "No results found on Inv MCP",
