@@ -24,7 +24,7 @@ export function buildProfileQuery(profile: UserProfile): string {
   
   // Budget
   if (profile.budget_range) {
-    parts.push(`with prices between $${profile.budget_range.min}-${profile.budget_range.max} per night`);
+    parts.push(`with prices between $${profile.budget_range.min.toFixed(2)}-${profile.budget_range.max.toFixed(2)} per night`);
   }
   
   parts.push('Show me the best hostels with availability that suit me');
