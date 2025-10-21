@@ -528,18 +528,20 @@ const Index = () => {
                   </div>
                 )}
 
-                {/* Raw MCP Response Section */}
-                <div>
-                  <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-primary" />
-                    Raw MCP Server Response
-                  </h3>
-                  <div className="bg-muted rounded-lg p-4 overflow-x-auto">
-                    <pre className="text-xs text-foreground whitespace-pre-wrap">
-                      {JSON.stringify(mcpResponse, null, 2)}
-                    </pre>
+                {/* Raw MCP Response Section - Only hostels */}
+                {mcpResponse?.structuredContent?.results?.[0]?.hostels && (
+                  <div>
+                    <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-primary" />
+                      Raw MCP Server Response
+                    </h3>
+                    <div className="bg-muted rounded-lg p-4 overflow-x-auto">
+                      <pre className="text-xs text-foreground whitespace-pre-wrap">
+                        {JSON.stringify(mcpResponse.structuredContent.results[0].hostels, null, 2)}
+                      </pre>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             );
           })()}
