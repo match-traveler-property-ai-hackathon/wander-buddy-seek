@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Search, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Loader2, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMcpHostelSearch } from "@/hooks/useMcpHostelSearch";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -316,23 +316,35 @@ const Index = () => {
         <section className="px-6 py-8 md:py-12 bg-white rounded-2xl mb-6">
           <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Tell us what you want</h2>
           
-          <div className="relative mb-4 max-w-2xl">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="describe your ideal hostel features and location"
-              className="pl-9 pr-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={handleKeyPress}
+          <div className="flex gap-2 mb-4 max-w-2xl">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="describe your ideal hostel features and location"
+                className="pl-9"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={handleKeyPress}
+                disabled={isSearching}
+              />
+            </div>
+            <Button 
+              onClick={() => handleSearch(searchQuery)}
               disabled={isSearching}
-            />
-            {isSearching && (
-              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-primary" />
-            )}
+              className="gap-2"
+            >
+              {isSearching ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+              Search
+            </Button>
+            <FiltersModal filters={filters} onFiltersChange={setFilters} />
           </div>
           
-          <div className="flex gap-2 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide mb-4">
+          <div className="flex gap-2 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide">
             <button 
               onClick={() => {
                 const query = "Find me a hostel for tonight nearby";
@@ -367,8 +379,6 @@ const Index = () => {
               Hostels on the mediterranean with a surf school nearby
             </button>
           </div>
-          
-          <FiltersModal filters={filters} onFiltersChange={setFilters} />
         </section>
 
         {/* Travel Plans Section */}
