@@ -96,7 +96,11 @@ const Index = () => {
       rating: 4.8,
       distance: "1.2 km from centre",
       price: 25,
-      benefits: ["Pet-friendly", "Social", "Free WiFi"],
+      ratingBreakdown: [
+        { category: "Cleanliness", rating: 4.9 },
+        { category: "Location", rating: 4.8 },
+        { category: "Staff", rating: 4.7 }
+      ],
       bookingLink: undefined
     },
     {
@@ -105,7 +109,11 @@ const Index = () => {
       rating: 4.9,
       distance: "0.8 km from centre",
       price: 32,
-      benefits: ["Pet-friendly", "Rooftop terrace", "Kitchen"],
+      ratingBreakdown: [
+        { category: "Atmosphere", rating: 5.0 },
+        { category: "Location", rating: 4.9 },
+        { category: "Facilities", rating: 4.8 }
+      ],
       bookingLink: undefined
     },
     {
@@ -114,7 +122,11 @@ const Index = () => {
       rating: 4.7,
       distance: "1.5 km from centre",
       price: 28,
-      benefits: ["Pet-friendly", "Social", "Bar"],
+      ratingBreakdown: [
+        { category: "Staff", rating: 4.9 },
+        { category: "Value", rating: 4.7 },
+        { category: "Security", rating: 4.6 }
+      ],
       bookingLink: undefined
     },
     {
@@ -123,7 +135,11 @@ const Index = () => {
       rating: 4.9,
       distance: "2.1 km from centre",
       price: 30,
-      benefits: ["Pet-friendly", "Eco-friendly", "Garden"],
+      ratingBreakdown: [
+        { category: "Cleanliness", rating: 5.0 },
+        { category: "Facilities", rating: 4.9 },
+        { category: "Atmosphere", rating: 4.8 }
+      ],
       bookingLink: undefined
     },
     {
@@ -132,7 +148,11 @@ const Index = () => {
       rating: 4.6,
       distance: "1.8 km from centre",
       price: 27,
-      benefits: ["Pet-friendly", "Historic building", "Courtyard"],
+      ratingBreakdown: [
+        { category: "Location", rating: 4.8 },
+        { category: "Value", rating: 4.6 },
+        { category: "Character", rating: 4.7 }
+      ],
       bookingLink: undefined
     }
   ];
@@ -151,38 +171,16 @@ const Index = () => {
       price: parseFloat(hostel.lowestPricePerNight?.value || '0'),
       image: hostel.images?.[0] ? `https://${hostel.images[0].prefix}${hostel.images[0].suffix}` : hostel1Img,
       rating: hostel.overallRating?.overall ? hostel.overallRating.overall / 10 : 4.5,
-      benefits: (() => {
-        if (!hostel.facilities) return ["Free WiFi"];
-        
-        // Prioritize certain facility categories
-        const priorityCategories = ["FACILITYCATEGORYFREE", "FACILITYCATEGORYBEDROOM", "FACILITYCATEGORYENTERTAINMENT"];
-        const allFacilities: string[] = [];
-        
-        // First, collect facilities from priority categories
-        priorityCategories.forEach(categoryId => {
-          const category = hostel.facilities.find((cat: any) => cat.id === categoryId);
-          if (category?.facilities) {
-            category.facilities.forEach((facility: any) => {
-              if (facility.name) allFacilities.push(facility.name);
-            });
-          }
-        });
-        
-        // If we don't have enough, add from other categories
-        if (allFacilities.length < 3) {
-          hostel.facilities.forEach((category: any) => {
-            if (!priorityCategories.includes(category.id) && category.facilities) {
-              category.facilities.forEach((facility: any) => {
-                if (facility.name && allFacilities.length < 6) {
-                  allFacilities.push(facility.name);
-                }
-              });
-            }
-          });
-        }
-        
-        return allFacilities.slice(0, 3);
-      })(),
+      ratingBreakdown: hostel.ratingBreakdown 
+        ? Object.entries(hostel.ratingBreakdown)
+            .filter(([key]) => key !== 'overall')
+            .map(([category, rating]: [string, any]) => ({
+              category: category.charAt(0).toUpperCase() + category.slice(1),
+              rating: typeof rating === 'number' ? rating / 10 : 0
+            }))
+            .sort((a, b) => b.rating - a.rating)
+            .slice(0, 3)
+        : undefined,
       bookingLink: hostel.bookingLink,
       distance: hostel.distance?.value ? `${hostel.distance.value} ${hostel.distance.units} from centre` : undefined
     }));
@@ -415,7 +413,7 @@ const Index = () => {
                     rating={hostel.rating}
                     distance={hostel.distance}
                     price={hostel.price}
-                    benefits={hostel.benefits}
+                    ratingBreakdown={hostel.ratingBreakdown}
                     bookingLink={hostel.bookingLink}
                   />
                 ))}
@@ -535,7 +533,7 @@ const Index = () => {
                               rating={hostel.rating}
                               distance={hostel.distance}
                               price={hostel.price}
-                              benefits={hostel.benefits}
+                              ratingBreakdown={hostel.ratingBreakdown}
                               bookingLink={hostel.bookingLink}
                             />
                           </CarouselItem>

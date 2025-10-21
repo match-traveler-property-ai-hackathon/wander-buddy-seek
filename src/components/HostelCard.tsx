@@ -1,7 +1,11 @@
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Star } from "lucide-react";
+
+interface RatingBreakdownItem {
+  category: string;
+  rating: number;
+}
 
 interface HostelCardProps {
   name: string;
@@ -9,7 +13,7 @@ interface HostelCardProps {
   rating: number;
   distance: string;
   price: number;
-  benefits: string[];
+  ratingBreakdown?: RatingBreakdownItem[];
   bookingLink?: string;
 }
 
@@ -19,7 +23,7 @@ export const HostelCard = ({
   rating,
   distance,
   price,
-  benefits,
+  ratingBreakdown,
   bookingLink,
 }: HostelCardProps) => {
   const handleBookNow = (e: React.MouseEvent) => {
@@ -44,17 +48,19 @@ export const HostelCard = ({
       <div className="p-4 space-y-3">
         <div>
           <h3 className="font-bold text-lg mb-2">{name}</h3>
-          <div className="flex flex-wrap gap-2 mb-3">
-            {benefits.map((benefit, index) => (
-              <Badge
-                key={index}
-                variant="secondary"
-                className="text-xs px-2 py-1"
-              >
-                {benefit}
-              </Badge>
-            ))}
-          </div>
+          {ratingBreakdown && ratingBreakdown.length > 0 && (
+            <div className="space-y-1.5 mb-3">
+              {ratingBreakdown.map((item, index) => (
+                <div key={index} className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{item.category}</span>
+                  <div className="flex items-center gap-1">
+                    <Star size={14} className="fill-primary text-primary" />
+                    <span className="font-semibold">{item.rating.toFixed(1)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between text-sm">
