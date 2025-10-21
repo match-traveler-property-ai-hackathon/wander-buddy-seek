@@ -65,8 +65,22 @@ export const useUserProfile = () => {
         .is('user_id', null)
         .order('name', { ascending: true });
 
-      if (!error && data) {
-        const profiles = data.map(d => ({
+      if (error) {
+        console.error('Error loading available profiles:', error);
+        return;
+      }
+
+      if (data) {
+        // Remove duplicates by name
+        const uniqueProfiles = data.reduce((acc: any[], current: any) => {
+          const exists = acc.find(p => p.name === current.name);
+          if (!exists) {
+            acc.push(current);
+          }
+          return acc;
+        }, []);
+
+        const profiles = uniqueProfiles.map(d => ({
           id: d.id,
           user_id: d.user_id,
           name: d.name || 'User',
@@ -77,6 +91,8 @@ export const useUserProfile = () => {
           travel_style: d.travel_style || 'backpacker',
           age_range: d.age_range || '18-30'
         }));
+        
+        console.log('Available profiles loaded:', profiles.length);
         setAvailableProfiles(profiles);
       }
     } catch (error) {
