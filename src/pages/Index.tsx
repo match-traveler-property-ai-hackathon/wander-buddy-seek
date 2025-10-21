@@ -193,14 +193,14 @@ const Index = () => {
             <div className="flex flex-wrap gap-2 max-w-2xl">
               <button 
                 onClick={() => {
-                  const query = "I'd like a city break for myself within a two hour flight of Dublin";
+                  const query = "Find me a hostel for tonight nearby";
                   setSearchQuery(query);
                   handleSearch(query);
                 }}
                 disabled={isSearching}
                 className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors disabled:opacity-50"
               >
-                I'd like a city break for myself within a two hour flight of Dublin
+                Find me a hostel for tonight nearby
               </button>
               <button 
                 onClick={() => {
