@@ -77,7 +77,8 @@ const Index = () => {
     searchHostels, 
     isSearching, 
     searchStage,
-    mcpResponse
+    profileRecommendations,
+    aiSearchResults
   } = useMcpHostelSearch();
   const { 
     profile, 
@@ -135,64 +136,72 @@ const Index = () => {
     }
   ];
 
-  // Process MCP response and map to hostel card format
-  const displayHostels = useMemo(() => {
-    console.log('MCP Response:', mcpResponse);
-    
+  // Map MCP response to hostel card format (helper function)
+  const mapHostelsToCards = (mcpResponse: any) => {
     // Handle both response structures
     const hostels = mcpResponse?.structuredContent?.hostels || 
                     mcpResponse?.structuredContent?.results?.[0]?.hostels;
     
-    console.log('Hostels from response:', hostels);
+    if (!hostels) return null;
     
-    const mapped = hostels?.map((hostel: any) => {
-      console.log('Mapping hostel:', hostel.name, hostel);
-      return {
-        id: hostel.id,
-        name: hostel.name,
-        price: parseFloat(hostel.lowestPricePerNight?.value || '0'),
-        image: hostel.images?.[0] ? `https://${hostel.images[0].prefix}${hostel.images[0].suffix}` : hostel1Img,
-        rating: hostel.overallRating?.overall ? hostel.overallRating.overall / 10 : 4.5,
-        benefits: (() => {
-          if (!hostel.facilities) return ["Free WiFi"];
-          
-          // Prioritize certain facility categories
-          const priorityCategories = ["FACILITYCATEGORYFREE", "FACILITYCATEGORYBEDROOM", "FACILITYCATEGORYENTERTAINMENT"];
-          const allFacilities: string[] = [];
-          
-          // First, collect facilities from priority categories
-          priorityCategories.forEach(categoryId => {
-            const category = hostel.facilities.find((cat: any) => cat.id === categoryId);
-            if (category?.facilities) {
+    return hostels.map((hostel: any) => ({
+      id: hostel.id,
+      name: hostel.name,
+      price: parseFloat(hostel.lowestPricePerNight?.value || '0'),
+      image: hostel.images?.[0] ? `https://${hostel.images[0].prefix}${hostel.images[0].suffix}` : hostel1Img,
+      rating: hostel.overallRating?.overall ? hostel.overallRating.overall / 10 : 4.5,
+      benefits: (() => {
+        if (!hostel.facilities) return ["Free WiFi"];
+        
+        // Prioritize certain facility categories
+        const priorityCategories = ["FACILITYCATEGORYFREE", "FACILITYCATEGORYBEDROOM", "FACILITYCATEGORYENTERTAINMENT"];
+        const allFacilities: string[] = [];
+        
+        // First, collect facilities from priority categories
+        priorityCategories.forEach(categoryId => {
+          const category = hostel.facilities.find((cat: any) => cat.id === categoryId);
+          if (category?.facilities) {
+            category.facilities.forEach((facility: any) => {
+              if (facility.name) allFacilities.push(facility.name);
+            });
+          }
+        });
+        
+        // If we don't have enough, add from other categories
+        if (allFacilities.length < 3) {
+          hostel.facilities.forEach((category: any) => {
+            if (!priorityCategories.includes(category.id) && category.facilities) {
               category.facilities.forEach((facility: any) => {
-                if (facility.name) allFacilities.push(facility.name);
+                if (facility.name && allFacilities.length < 6) {
+                  allFacilities.push(facility.name);
+                }
               });
             }
           });
-          
-          // If we don't have enough, add from other categories
-          if (allFacilities.length < 3) {
-            hostel.facilities.forEach((category: any) => {
-              if (!priorityCategories.includes(category.id) && category.facilities) {
-                category.facilities.forEach((facility: any) => {
-                  if (facility.name && allFacilities.length < 6) {
-                    allFacilities.push(facility.name);
-                  }
-                });
-              }
-            });
-          }
-          
-          return allFacilities.slice(0, 3);
-        })(),
-        bookingLink: hostel.bookingLink,
-        distance: hostel.distance?.value ? `${hostel.distance.value} ${hostel.distance.units} from centre` : undefined
-      };
-    }) || defaultHostels;
-    
-    console.log('Mapped displayHostels:', mapped);
+        }
+        
+        return allFacilities.slice(0, 3);
+      })(),
+      bookingLink: hostel.bookingLink,
+      distance: hostel.distance?.value ? `${hostel.distance.value} ${hostel.distance.units} from centre` : undefined
+    }));
+  };
+
+  // Profile recommendations for "Your Recommendations" section
+  const recommendedHostels = useMemo(() => {
+    console.log('Profile Recommendations:', profileRecommendations);
+    const mapped = mapHostelsToCards(profileRecommendations);
+    console.log('Mapped recommendedHostels:', mapped);
+    return mapped || defaultHostels;
+  }, [profileRecommendations]);
+
+  // AI search results for "Ask AI" section
+  const aiHostels = useMemo(() => {
+    console.log('AI Search Results:', aiSearchResults);
+    const mapped = mapHostelsToCards(aiSearchResults);
+    console.log('Mapped aiHostels:', mapped);
     return mapped;
-  }, [mcpResponse]);
+  }, [aiSearchResults]);
 
   // Check scroll position
   const checkScroll = () => {
@@ -220,7 +229,7 @@ const Index = () => {
       checkScroll();
       return () => scrollContainer.removeEventListener('scroll', checkScroll);
     }
-  }, [displayHostels]);
+  }, [recommendedHostels]);
 
   // Mark initial load as complete without searching
   useEffect(() => {
@@ -382,7 +391,7 @@ const Index = () => {
               </Button>
             )}
 
-            {(isSearching || profileLoading) && displayHostels.length === 0 ? (
+            {(isSearching || profileLoading) && recommendedHostels.length === 0 ? (
               <div className="grid grid-cols-1 md:flex md:gap-6 md:overflow-x-auto gap-4 pb-4 px-6 scrollbar-hide">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="md:min-w-[320px] md:max-w-[320px] space-y-3">
@@ -397,7 +406,7 @@ const Index = () => {
                 ref={hostelScrollRef}
                 className="grid grid-cols-1 md:flex md:gap-6 md:overflow-x-auto gap-4 pb-4 px-6 scrollbar-hide scroll-smooth"
               >
-                {displayHostels.map((hostel, index) => (
+                {recommendedHostels.map((hostel, index) => (
                   <HostelCard
                     key={index}
                     name={hostel.name}
@@ -502,10 +511,9 @@ const Index = () => {
           )}
 
           {/* MCP Search Results Display */}
-          {mcpResponse && (() => {
-            // Use the same mapped hostels from displayHostels (filter out defaults)
-            const searchResults = (mcpResponse?.structuredContent?.hostels || 
-                                  mcpResponse?.structuredContent?.results?.[0]?.hostels) ? displayHostels : [];
+          {aiSearchResults && (() => {
+            // Use AI search results for the carousel
+            const searchResults = aiHostels || [];
 
             return (
               <div className="mt-8 space-y-8">
