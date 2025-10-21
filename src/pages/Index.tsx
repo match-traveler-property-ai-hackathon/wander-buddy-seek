@@ -442,48 +442,8 @@ const Index = () => {
 
           {/* MCP Search Results Display */}
           {mcpResponse && (() => {
-            // Map MCP response to hostel cards
-            const mapMcpToHostels = () => {
-              try {
-                const content = mcpResponse?.content;
-                
-                // Try to parse the content if it's a string
-                let hostelsData = [];
-                if (typeof content === 'string') {
-                  try {
-                    const parsed = JSON.parse(content);
-                    hostelsData = Array.isArray(parsed) ? parsed : (parsed.hostels || parsed.properties || [parsed]);
-                  } catch {
-                    // If parsing fails, return empty array
-                    return [];
-                  }
-                } else if (Array.isArray(content)) {
-                  hostelsData = content;
-                } else if (content?.hostels || content?.properties) {
-                  hostelsData = content.hostels || content.properties;
-                } else if (typeof content === 'object') {
-                  hostelsData = [content];
-                }
-
-                // Default images to cycle through
-                const defaultImages = [hostel1Img, hostel2Img, hostel3Img, hostel4Img, hostel5Img];
-
-                return hostelsData.slice(0, 10).map((hostel: any, index: number) => ({
-                  name: hostel.name || hostel.propertyName || hostel.hostelName || `Property ${index + 1}`,
-                  image: hostel.image || hostel.imageUrl || hostel.photo || defaultImages[index % defaultImages.length],
-                  rating: parseFloat(hostel.rating || hostel.score || hostel.reviewScore || '4.5'),
-                  distance: hostel.distance || hostel.distanceFromCenter || hostel.location || 'City center',
-                  price: parseInt(hostel.price || hostel.pricePerNight || hostel.lowestPricePerNight || '25'),
-                  benefits: hostel.facilities || hostel.amenities || hostel.features || ['WiFi', 'Social'],
-                  bookingLink: hostel.bookingUrl || hostel.url || hostel.link
-                }));
-              } catch (error) {
-                console.error('Error mapping MCP response:', error);
-                return [];
-              }
-            };
-
-            const mappedHostels = mapMcpToHostels();
+            // Use the same mapped hostels from displayHostels (filter out defaults)
+            const searchResults = mcpResponse?.structuredContent?.results?.[0]?.hostels ? displayHostels : [];
 
             return (
               <div className="mt-8 space-y-8">
@@ -493,11 +453,11 @@ const Index = () => {
                     <Sparkles className="h-5 w-5 text-primary" />
                     AI Search Results
                   </h3>
-                  {mappedHostels.length > 0 ? (
+                  {searchResults.length > 0 ? (
                     <Carousel className="w-full">
                       <CarouselContent>
-                        {mappedHostels.map((hostel, index) => (
-                          <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                        {searchResults.map((hostel, index) => (
+                          <CarouselItem key={hostel.id || index} className="md:basis-1/2 lg:basis-1/3">
                             <HostelCard
                               name={hostel.name}
                               image={hostel.image}
@@ -521,7 +481,7 @@ const Index = () => {
                 </div>
 
                 {/* Mapped Array Section */}
-                {mappedHostels.length > 0 && (
+                {searchResults.length > 0 && (
                   <div>
                     <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
                       <Sparkles className="h-5 w-5 text-primary" />
@@ -529,7 +489,7 @@ const Index = () => {
                     </h3>
                     <div className="bg-muted rounded-lg p-4 overflow-x-auto">
                       <pre className="text-xs text-foreground whitespace-pre-wrap">
-                        {JSON.stringify(mappedHostels, null, 2)}
+                        {JSON.stringify(searchResults, null, 2)}
                       </pre>
                     </div>
                   </div>
