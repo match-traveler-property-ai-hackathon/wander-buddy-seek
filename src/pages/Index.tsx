@@ -253,7 +253,7 @@ const Index = () => {
         <section className="py-8 md:py-12 mb-6 bg-white rounded-t-[2rem] rounded-b-2xl -mt-6 relative z-10">
           <div className="px-6 mb-6 md:mb-8">
             <div className="flex items-center gap-2 mb-2">
-              <h2 className="text-2xl md:text-3xl font-bold">Hostels just for you</h2>
+              <h2 className="text-2xl md:text-3xl font-bold">Hostels tailored to you</h2>
               <Building2 className="h-6 w-6 md:h-7 md:w-7 text-primary" />
             </div>
             <p className="text-muted-foreground text-sm md:text-base">
