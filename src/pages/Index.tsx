@@ -39,6 +39,7 @@ import hostel2Img from "@/assets/hostel2.jpg";
 import hostel3Img from "@/assets/hostel3.jpg";
 import hostel4Img from "@/assets/hostel4.jpg";
 import hostel5Img from "@/assets/hostel5.jpg";
+import hostelworldLogo from "@/assets/hostelworld-logo.png";
 
 const Index = () => {
   const { toast } = useToast();
@@ -231,7 +232,14 @@ const Index = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6 md:mb-8">
             <div className="flex items-center gap-4">
-              <DesktopNavigation />
+              <div className="flex flex-col items-center gap-2">
+                <img 
+                  src={hostelworldLogo} 
+                  alt="Hostelworld" 
+                  className="w-12 h-12 md:w-14 md:h-14"
+                />
+                <DesktopNavigation />
+              </div>
               <h1 className="text-white text-2xl md:text-4xl font-bold max-w-[250px] md:max-w-xl">
                 Your next adventure starts here!
               </h1>
