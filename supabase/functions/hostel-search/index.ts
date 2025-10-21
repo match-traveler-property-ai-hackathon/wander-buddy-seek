@@ -502,6 +502,7 @@ Return only the JSON array, no markdown or explanation.`;
 
     // Extract MCP response from tool results for frontend
     let mcpResponse = null;
+    let noResultsReason = null;
     
     if (toolResults && toolResults.length > 0) {
       try {
@@ -513,17 +514,47 @@ Return only the JSON array, no markdown or explanation.`;
             console.log('Found valid MCP response with structuredContent');
             break;
           }
+          
+          // Check if tool returned empty results with metadata
+          if (resultContent && resultContent.error) {
+            noResultsReason = resultContent.error;
+          }
+        }
+        
+        // If we have MCP response but no hostels, determine the reason
+        if (mcpResponse && mcpResponse.structuredContent) {
+          const hostels = mcpResponse.structuredContent.hostels || [];
+          if (hostels.length === 0) {
+            // Analyze the query to provide a specific reason
+            const lowerQuery = query.toLowerCase();
+            const fieldNeeds = analyzeQueryForFields(query);
+            
+            if (lowerQuery.match(/\b(london|paris|rome|barcelona|berlin|amsterdam|tokyo|bangkok|new york|sydney)\b/i)) {
+              noResultsReason = "No properties found in the requested location. The destination may not have available hostels for the selected dates.";
+            } else if (fieldNeeds.needsFacilities || lowerQuery.includes('pool') || lowerQuery.includes('wifi') || lowerQuery.includes('gym')) {
+              noResultsReason = "No properties matched the requested facilities. Try searching with fewer or different amenities.";
+            } else if (lowerQuery.includes('budget') || lowerQuery.includes('cheap') || lowerQuery.includes('under')) {
+              noResultsReason = "No properties found within the specified budget. Try increasing your price range.";
+            } else if (lowerQuery.includes('private') || lowerQuery.includes('ensuite')) {
+              noResultsReason = "No properties found with the requested room type. Try searching for dorms or shared rooms.";
+            } else {
+              noResultsReason = "No properties matched your search criteria. Try adjusting your requirements or changing the location.";
+            }
+            mcpResponse = null;
+          }
         }
       } catch (extractError) {
         console.error('Error extracting MCP results:', extractError);
       }
     }
 
-    // Return the raw MCP response or a "no results" message
+    // Return the raw MCP response or a "no results" message with reason
     if (!mcpResponse) {
-      console.log('No results found on Inv MCP');
+      const defaultReason = noResultsReason || "No properties found matching your search criteria. Try adjusting your search terms or selecting different dates.";
+      console.log('No results found on Inv MCP:', defaultReason);
       return new Response(JSON.stringify({ 
         message: "No results found on Inv MCP",
+        reason: defaultReason,
         mcpResponse: null 
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -543,8 +543,11 @@ const Index = () => {
                       <CarouselNext />
                     </Carousel>
                   ) : (
-                    <div className="bg-muted rounded-lg p-4">
-                      <p className="text-sm text-muted-foreground">No hostels found. Try adjusting your search.</p>
+                    <div className="bg-muted rounded-lg p-6 space-y-2">
+                      <p className="font-semibold text-foreground">No Results Found</p>
+                      <p className="text-sm text-muted-foreground">
+                        {searchError || "No hostels found. Try adjusting your search criteria."}
+                      </p>
                     </div>
                   )}
                 </div>

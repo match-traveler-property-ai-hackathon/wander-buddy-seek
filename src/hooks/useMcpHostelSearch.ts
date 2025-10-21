@@ -79,14 +79,15 @@ export const useMcpHostelSearch = () => {
 
       if (data?.message === "No results found on Inv MCP") {
         console.log('No results found on Inv MCP');
+        const reasonMessage = data?.reason || 'No results found';
         setSearchStage('error');
-        setSearchError('No results found');
+        setSearchError(reasonMessage);
         if (profileBased) {
           setProfileRecommendations(null);
         } else {
           setAiSearchResults(null);
         }
-        return { success: false, message: 'No results found on Inv MCP' };
+        return { success: false, message: reasonMessage };
       }
 
       if (data?.mcpResponse) {
