@@ -181,7 +181,7 @@ const Index = () => {
           <p className="text-muted-foreground mb-6 md:mb-8 text-sm md:text-base">
             Social and pet-friendly hostels in Mexico City
           </p>
-          <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide mb-6 md:mb-8">
+          <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide">
             {displayHostels.map((hostel, index) => (
               <HostelCard
                 key={index}
@@ -194,62 +194,65 @@ const Index = () => {
               />
             ))}
           </div>
+        </section>
+
+        {/* Tell us what you want Section */}
+        <section className="px-6 py-8 md:py-12">
+          <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Tell us what you want</h2>
           
-          <div className="mt-6 md:mt-8">
-            <div className="relative mb-4 max-w-2xl">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="describe your ideal hostel features and location"
-                className="pl-9 pr-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={handleKeyPress}
-                disabled={isSearching}
-              />
-              {isSearching && (
-                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-primary" />
-              )}
-            </div>
-            <div className="flex flex-wrap gap-2 max-w-2xl">
-              <button 
-                onClick={() => {
-                  const query = "Find me a hostel for tonight nearby";
-                  setSearchQuery(query);
-                  handleSearch(query);
-                }}
-                disabled={isSearching}
-                className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors disabled:opacity-50"
-              >
-                Find me a hostel for tonight nearby
-              </button>
-              <button 
-                onClick={() => {
-                  const query = "Social and pet-friendly hostels in Mexico City";
-                  setSearchQuery(query);
-                  handleSearch(query);
-                }}
-                disabled={isSearching}
-                className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors disabled:opacity-50"
-              >
-                Social and pet-friendly hostels in Mexico City
-              </button>
-              <button 
-                onClick={() => {
-                  const query = "Hostels on the mediterranean with a surf school nearby";
-                  setSearchQuery(query);
-                  handleSearch(query);
-                }}
-                disabled={isSearching}
-                className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors disabled:opacity-50"
-              >
-                Hostels on the mediterranean with a surf school nearby
-              </button>
-            </div>
-            <div className="mt-4">
-              <FiltersModal filters={filters} onFiltersChange={setFilters} />
-            </div>
+          <div className="relative mb-4 max-w-2xl">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="describe your ideal hostel features and location"
+              className="pl-9 pr-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={handleKeyPress}
+              disabled={isSearching}
+            />
+            {isSearching && (
+              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-primary" />
+            )}
           </div>
+          
+          <div className="flex gap-2 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide mb-4">
+            <button 
+              onClick={() => {
+                const query = "Find me a hostel for tonight nearby";
+                setSearchQuery(query);
+                handleSearch(query);
+              }}
+              disabled={isSearching}
+              className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors disabled:opacity-50 whitespace-nowrap"
+            >
+              Find me a hostel for tonight nearby
+            </button>
+            <button 
+              onClick={() => {
+                const query = "Social and pet-friendly hostels in Mexico City";
+                setSearchQuery(query);
+                handleSearch(query);
+              }}
+              disabled={isSearching}
+              className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors disabled:opacity-50 whitespace-nowrap"
+            >
+              Social and pet-friendly hostels in Mexico City
+            </button>
+            <button 
+              onClick={() => {
+                const query = "Hostels on the mediterranean with a surf school nearby";
+                setSearchQuery(query);
+                handleSearch(query);
+              }}
+              disabled={isSearching}
+              className="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm hover:bg-secondary/80 transition-colors disabled:opacity-50 whitespace-nowrap"
+            >
+              Hostels on the mediterranean with a surf school nearby
+            </button>
+          </div>
+          
+          <FiltersModal filters={filters} onFiltersChange={setFilters} />
         </section>
 
         {/* Travel Plans Section */}
