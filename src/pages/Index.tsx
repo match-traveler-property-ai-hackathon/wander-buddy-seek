@@ -529,7 +529,7 @@ const Index = () => {
                 )}
 
                 {/* Raw MCP Response Section - Only hostels */}
-                {mcpResponse?.structuredContent?.results?.[0]?.hostels && (
+                {searchResults.length > 0 && mcpResponse?.structuredContent?.results?.[0]?.hostels && (
                   <div>
                     <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
                       <Sparkles className="h-5 w-5 text-primary" />
