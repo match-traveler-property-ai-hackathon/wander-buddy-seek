@@ -48,6 +48,7 @@ const Index = () => {
   const isMobile = useIsMobile();
   const [searchQuery, setSearchQuery] = useState("");
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const [isFirstProfileLoad, setIsFirstProfileLoad] = useState(true);
   const hostelScrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -181,14 +182,20 @@ const Index = () => {
     }
   }, [profile, profileLoading, initialLoadComplete]);
 
-  // Re-fetch recommendations when profile changes
+  // Re-fetch recommendations when profile changes (but not on initial load)
   useEffect(() => {
     if (profile && !profileLoading && initialLoadComplete) {
-      performProfileSearch();
-      toast({
-        title: "Profile switched",
-        description: `Now showing recommendations for ${profile.name}`,
-      });
+      if (isFirstProfileLoad) {
+        // Skip search on first profile load
+        setIsFirstProfileLoad(false);
+      } else {
+        // Only search when user actively switches profiles
+        performProfileSearch();
+        toast({
+          title: "Profile switched",
+          description: `Now showing recommendations for ${profile.name}`,
+        });
+      }
     }
   }, [profile?.id]);
 
