@@ -24,11 +24,8 @@ export const useMcpHostelSearch = () => {
     console.log('Profile-based:', profileBased);
 
     try {
-      // Stage 1: Checking AI
-      setTimeout(() => setSearchStage('mcp'), 500);
-      
-      // Stage 2: After 2 seconds, assume we're checking Hostelworld via MCP
-      setTimeout(() => setSearchStage('sorting'), 2000);
+      // Stage 1: AI processing request
+      console.log('Stage: AI - Processing query with Claude');
       
       // Call edge function which handles MCP server connection and Claude integration
       const response = await fetch(
@@ -45,6 +42,12 @@ export const useMcpHostelSearch = () => {
 
       const data = await response.json();
       console.log('Search response:', data);
+      
+      // Update stage based on response
+      if (data?.mcpResponse) {
+        console.log('Stage: MCP - Retrieved results from Hostelworld');
+        setSearchStage('sorting');
+      }
 
       // Handle rate limiting (429 status)
       if (response.status === 429 || data?.rateLimited) {

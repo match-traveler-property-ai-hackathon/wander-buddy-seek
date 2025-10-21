@@ -354,7 +354,8 @@ Return only the JSON array, no markdown or explanation.`;
       
       // Execute MCP tool calls
       for (const toolUse of toolUses) {
-        console.log(`Executing tool: ${toolUse.name} with input:`, toolUse.input);
+        console.log(`Executing MCP tool: ${toolUse.name} with input:`, toolUse.input);
+        console.log('Stage: MCP - Calling Hostelworld MCP server');
         
         try {
           const mcpToolResponse = await fetch(MCP_SERVER_URL, {
@@ -375,6 +376,7 @@ Return only the JSON array, no markdown or explanation.`;
           });
           
           const mcpResult = await mcpToolResponse.json();
+          console.log('Stage: MCP - Results received from Hostelworld');
           console.log('MCP tool result received');
           
           // Return all fields - no filtering
@@ -436,7 +438,7 @@ Return only the JSON array, no markdown or explanation.`;
       }
       
       // Send tool results back to Claude for sorting/formatting
-      console.log('Sending tool results to Claude for sorting...');
+      console.log('Stage: Sorting - Sending results to Claude for sorting and formatting...');
       const finalRequest = {
         model: 'claude-sonnet-4-5',
         max_tokens: 2048,
