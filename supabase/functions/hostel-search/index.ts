@@ -323,9 +323,42 @@ Return only the JSON array, no markdown or explanation.`;
           });
           
           const mcpResult = await mcpToolResponse.json();
-          console.log('MCP tool result:', JSON.stringify(mcpResult, null, 2));
+          console.log('MCP tool result received');
           
-          // Store the raw tool result data for potential direct use
+          // CRITICAL: Reduce token usage by summarizing the response
+          // Only send essential data back to Claude, not the full response
+          let summarizedResult = mcpResult;
+          
+          if (mcpResult.result?.structuredContent?.results?.[0]?.hostels) {
+            const hostels = mcpResult.result.structuredContent.results[0].hostels;
+            console.log(`Summarizing ${hostels.length} hostels to reduce tokens`);
+            
+            // Keep only essential fields to drastically reduce token count
+            summarizedResult = {
+              result: {
+                structuredContent: {
+                  results: [{
+                    query: mcpResult.result.structuredContent.results[0].query,
+                    hostels: hostels.slice(0, 15).map((h: any) => ({
+                      id: h.id,
+                      name: h.name,
+                      overallRating: h.overallRating,
+                      lowestPricePerNight: h.lowestPricePerNight,
+                      distance: h.distance,
+                      images: h.images?.slice(0, 1), // Only first image
+                      facilities: h.facilities?.slice(0, 3).map((cat: any) => ({
+                        name: cat.name,
+                        facilities: cat.facilities?.slice(0, 2).map((f: any) => ({ name: f.name }))
+                      }))
+                    }))
+                  }]
+                }
+              }
+            };
+            console.log(`Reduced from full response to ${hostels.slice(0, 15).length} hostels with minimal fields`);
+          }
+          
+          // Store the FULL result for our response, but only send summarized to Claude
           if (mcpResult.result && !mcpResult.error) {
             console.log('Successful tool result received');
           }
@@ -333,7 +366,7 @@ Return only the JSON array, no markdown or explanation.`;
           toolResults.push({
             type: 'tool_result',
             tool_use_id: toolUse.id,
-            content: JSON.stringify(mcpResult.result || mcpResult)
+            content: JSON.stringify(summarizedResult.result || summarizedResult)
           });
         } catch (toolError) {
           console.error(`Error executing tool ${toolUse.name}:`, toolError);
