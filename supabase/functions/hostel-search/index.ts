@@ -377,62 +377,37 @@ Return only the JSON array, no markdown or explanation.`;
           const mcpResult = await mcpToolResponse.json();
           console.log('MCP tool result received');
           
-          // Analyze query to determine which fields to include
-          const fieldNeeds = analyzeQueryForFields(query);
-          console.log('Field analysis:', fieldNeeds);
-          
-          // Optimize token usage by only including essential fields
+          // Return all fields - no filtering
           let summarizedResult = mcpResult;
           
           if (mcpResult.result?.structuredContent?.hostels) {
             const hostels = mcpResult.result.structuredContent.hostels;
-            console.log(`Summarizing ${hostels.length} hostels with selective fields`);
+            console.log(`Returning ${hostels.length} hostels with all available fields`);
             
-            // Build hostel object with conditionally included fields
+            // Return complete hostel data with all optional fields
             summarizedResult = {
               result: {
                 structuredContent: {
-                  hostels: hostels.map((h: any) => {
-                    const baseData: any = {
-                      id: h.id,
-                      name: h.name,
-                      lowestPricePerNight: h.lowestPricePerNight,
-                      images: h.images?.[0] ? [{ 
-                        prefix: h.images[0].prefix,
-                        suffix: h.images[0].suffix 
-                      }] : [],
-                      bookingLink: h.bookingLink,
-                      overallRating: h.overallRating,
-                      distance: h.distance
-                    };
-                    
-                    // Conditionally add fields based on query analysis
-                    if (fieldNeeds.needsFacilities && h.facilities) {
-                      baseData.facilities = h.facilities;
-                    }
-                    if (fieldNeeds.needsRooms && h.rooms) {
-                      baseData.rooms = h.rooms;
-                    }
-                    if (fieldNeeds.needsOverview && h.overview) {
-                      baseData.overview = h.overview;
-                    }
-                    if (fieldNeeds.needsRatingBreakdown && h.ratingBreakdown) {
-                      baseData.ratingBreakdown = h.ratingBreakdown;
-                    }
-                    
-                    return baseData;
-                  })
+                  hostels: hostels.map((h: any) => ({
+                    id: h.id,
+                    name: h.name,
+                    lowestPricePerNight: h.lowestPricePerNight,
+                    images: h.images || [],
+                    bookingLink: h.bookingLink,
+                    overallRating: h.overallRating,
+                    distance: h.distance,
+                    // Include all optional fields
+                    facilities: h.facilities,
+                    rooms: h.rooms,
+                    overview: h.overview,
+                    ratingBreakdown: h.ratingBreakdown,
+                    freeCancellation: h.freeCancellation,
+                    address: h.address,
+                    propertyType: h.propertyType
+                  }))
                 }
               }
             };
-            
-            const includedFields = ['basic info'];
-            if (fieldNeeds.needsFacilities) includedFields.push('facilities');
-            if (fieldNeeds.needsRooms) includedFields.push('rooms');
-            if (fieldNeeds.needsOverview) includedFields.push('overview');
-            if (fieldNeeds.needsRatingBreakdown) includedFields.push('rating breakdown');
-            
-            console.log(`Prepared ${hostels.length} hostels with: ${includedFields.join(', ')}`);
           }
           
           toolResults.push({
