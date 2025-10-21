@@ -20,6 +20,7 @@ import { useMcpHostelSearch } from "@/hooks/useMcpHostelSearch";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { buildProfileQuery } from "@/utils/profileQuery";
 import { McpInspector } from "@/components/McpInspector";
+import SearchProgress from "@/components/SearchProgress";
 import { useIsMobile } from "@/hooks/use-mobile";
 import barcelonaImg from "@/assets/barcelona.jpg";
 import sydneyImg from "@/assets/sydney.jpg";
@@ -75,6 +76,7 @@ const Index = () => {
   const { 
     searchHostels, 
     isSearching, 
+    searchStage,
     mcpResponse
   } = useMcpHostelSearch();
   const { 
@@ -491,6 +493,13 @@ const Index = () => {
               <span className="whitespace-nowrap">Hostels on the mediterranean</span>
             </button>
           </div>
+
+          {/* Search Progress */}
+          {isSearching && (
+            <div className="mt-6">
+              <SearchProgress currentStage={searchStage} />
+            </div>
+          )}
 
           {/* MCP Search Results Display */}
           {mcpResponse && (() => {

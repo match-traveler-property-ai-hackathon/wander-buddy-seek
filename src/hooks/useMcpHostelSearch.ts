@@ -3,16 +3,24 @@ import { supabase } from '@/integrations/supabase/client';
 
 export const useMcpHostelSearch = () => {
   const [isSearching, setIsSearching] = useState(false);
+  const [searchStage, setSearchStage] = useState<'ai' | 'mcp' | 'sorting' | 'complete'>('ai');
   const [mcpResponse, setMcpResponse] = useState<any>(null);
 
   const searchHostels = async (query: string, profileBased: boolean = false) => {
     if (!query.trim()) return { success: false, message: 'Empty query' };
 
     setIsSearching(true);
+    setSearchStage('ai');
     console.log('Starting MCP hostel search:', query);
     console.log('Profile-based:', profileBased);
 
     try {
+      // Stage 1: Checking AI
+      setTimeout(() => setSearchStage('mcp'), 500);
+      
+      // Stage 2: After 2 seconds, assume we're checking Hostelworld via MCP
+      setTimeout(() => setSearchStage('sorting'), 2000);
+      
       // Call edge function which handles MCP server connection and Claude integration
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/hostel-search`,
@@ -58,6 +66,7 @@ export const useMcpHostelSearch = () => {
 
       if (data?.mcpResponse) {
         setMcpResponse(data.mcpResponse);
+        setSearchStage('complete');
         return { success: true, message: 'Results found' };
       } else {
         return { success: false, message: 'No MCP response' };
@@ -72,12 +81,14 @@ export const useMcpHostelSearch = () => {
       };
     } finally {
       setIsSearching(false);
+      setSearchStage('complete');
     }
   };
 
   return {
     searchHostels,
     isSearching,
+    searchStage,
     mcpResponse
   };
 };
