@@ -69,7 +69,7 @@ export const HostelCard = ({
 
         <div className="pt-2 border-t">
           <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-bold text-primary">${price}</span>
+            <span className="text-2xl font-bold text-primary">€{price}</span>
             <span className="text-sm text-muted-foreground">/night</span>
           </div>
         </div>
