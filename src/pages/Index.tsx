@@ -7,6 +7,7 @@ import { InspiredCard } from "@/components/InspiredCard";
 import { HostelCard } from "@/components/HostelCard";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import { DesktopNavigation } from "@/components/DesktopNavigation";
+import { ProfileSelector } from "@/components/ProfileSelector";
 import { FiltersModal, FilterOptions } from "@/components/FiltersModal";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -75,7 +76,12 @@ const Index = () => {
     isSearching, 
     mcpResponse
   } = useMcpHostelSearch();
-  const { profile, loading: profileLoading } = useUserProfile();
+  const { 
+    profile, 
+    loading: profileLoading, 
+    availableProfiles, 
+    switchProfile 
+  } = useUserProfile();
 
   // Default hostels to display initially
   const defaultHostels = [
@@ -164,6 +170,17 @@ const Index = () => {
     }
   }, [profile, profileLoading, initialLoadComplete]);
 
+  // Re-fetch recommendations when profile changes
+  useEffect(() => {
+    if (profile && !profileLoading && initialLoadComplete) {
+      performProfileSearch();
+      toast({
+        title: "Profile switched",
+        description: `Now showing recommendations for ${profile.name}`,
+      });
+    }
+  }, [profile?.id]);
+
   const performProfileSearch = async () => {
     if (!profile) return;
 
@@ -250,10 +267,11 @@ const Index = () => {
                 <DesktopNavigation />
               </div>
             </div>
-            <img
-              src={profileImg}
-              alt="Profile"
-              className="w-14 h-14 md:w-16 md:h-16 rounded-full object-cover border-2 border-white"
+            <ProfileSelector
+              currentProfile={profile}
+              availableProfiles={availableProfiles}
+              onProfileSwitch={switchProfile}
+              loading={profileLoading}
             />
           </div>
           <div className="md:max-w-2xl">
