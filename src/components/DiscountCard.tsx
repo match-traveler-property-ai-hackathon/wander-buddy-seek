@@ -7,7 +7,7 @@ interface DiscountCardProps {
 
 export const DiscountCard = ({ city, image }: DiscountCardProps) => {
   return (
-    <Card className="relative overflow-hidden min-w-[320px] md:min-w-0 h-[240px] rounded-3xl border-0 shadow-[var(--shadow-card)] hover:shadow-lg transition-shadow cursor-pointer">
+    <Card className="relative overflow-hidden min-w-[320px] h-[240px] rounded-3xl border-0 shadow-[var(--shadow-card)] hover:shadow-lg transition-shadow cursor-pointer">
       <img
         src={image}
         alt={city}
