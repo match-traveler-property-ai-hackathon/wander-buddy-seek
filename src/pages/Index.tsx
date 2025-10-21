@@ -239,7 +239,7 @@ const Index = () => {
                     alt="Hostelworld" 
                     className="w-10 h-10 md:w-12 md:h-12"
                   />
-                  <h1 className="text-white text-xl md:text-3xl font-bold">
+                  <h1 className="text-white text-2xl md:text-4xl font-bold">
                     Meet your people.
                   </h1>
                 </div>
