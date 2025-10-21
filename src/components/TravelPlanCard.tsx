@@ -19,7 +19,7 @@ export const TravelPlanCard = ({
   commentCount,
 }: TravelPlanCardProps) => {
   return (
-    <Card className="p-5 min-w-[280px] shadow-[var(--shadow-card)] border-0 rounded-2xl">
+    <Card className="p-5 min-w-[280px] md:min-w-0 shadow-[var(--shadow-card)] border-0 rounded-2xl hover:shadow-lg transition-shadow">
       <div className="flex items-center gap-3 mb-4">
         <img
           src={userImage}

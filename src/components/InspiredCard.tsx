@@ -7,7 +7,7 @@ interface InspiredCardProps {
 
 export const InspiredCard = ({ city, image }: InspiredCardProps) => {
   return (
-    <Card className="relative overflow-hidden min-w-[280px] h-[360px] rounded-3xl border-0 shadow-[var(--shadow-card)]">
+    <Card className="relative overflow-hidden min-w-[280px] md:min-w-0 h-[360px] rounded-3xl border-0 shadow-[var(--shadow-card)] hover:shadow-lg transition-shadow cursor-pointer">
       <img
         src={image}
         alt={city}
