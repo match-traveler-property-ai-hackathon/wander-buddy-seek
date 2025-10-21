@@ -173,7 +173,7 @@ const Index = () => {
       rating: hostel.overallRating?.overall ? hostel.overallRating.overall / 10 : 4.5,
       ratingBreakdown: hostel.ratingBreakdown 
         ? Object.entries(hostel.ratingBreakdown)
-            .filter(([key]) => key !== 'overall')
+            .filter(([key]) => key !== 'overall' && key.toLowerCase() !== 'ratingscount')
             .map(([category, rating]: [string, any]) => ({
               category: category.charAt(0).toUpperCase() + category.slice(1),
               rating: typeof rating === 'number' ? rating : 0 // Already 0-10 from API
