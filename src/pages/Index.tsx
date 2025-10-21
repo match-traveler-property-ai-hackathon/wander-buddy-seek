@@ -216,7 +216,7 @@ const Index = () => {
 
       <main className="max-w-7xl mx-auto">
         {/* Hostels Section */}
-        <section className="px-6 py-8 md:py-12 bg-white rounded-t-[2rem] -mt-6 relative z-10">
+        <section className="px-6 py-8 md:py-12 mb-6 bg-white rounded-t-[2rem] rounded-b-2xl -mt-6 relative z-10">
           <h2 className="text-2xl md:text-3xl font-bold mb-2">Hostels just for you</h2>
           <p className="text-muted-foreground mb-6 md:mb-8 text-sm md:text-base">
             {profileLoading ? 'Loading your preferences...' : 'Personalized hostels based on your profile'}
