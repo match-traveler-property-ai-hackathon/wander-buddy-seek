@@ -60,7 +60,7 @@ const Index = () => {
           <p className="text-muted-foreground mb-6 md:mb-8 text-sm md:text-base">
             Social and pet-friendly hostels in Mexico City
           </p>
-          <div className="flex gap-4 overflow-x-auto md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pb-4 -mx-6 px-6 md:mx-0 md:px-0 scrollbar-hide md:overflow-visible">
+          <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide">
             <HostelCard
               name="Casa Pepe"
               image={hostel1Img}
@@ -115,7 +115,7 @@ const Index = () => {
           <p className="text-muted-foreground mb-6 md:mb-8 text-sm md:text-base leading-relaxed">
             The best place to find travel buddies! See everyone's plans and share your own
           </p>
-          <div className="flex gap-4 overflow-x-auto md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pb-4 -mx-6 px-6 md:mx-0 md:px-0 scrollbar-hide md:overflow-visible">
+          <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide">
             <TravelPlanCard
               destination="Mexico City and Oaxaca"
               date="Nov 2025"
@@ -176,7 +176,7 @@ const Index = () => {
           <p className="text-primary font-semibold mb-6 md:mb-8 text-sm md:text-base bg-primary/10 inline-block px-3 py-1 rounded-lg">
             Find the best deals!
           </p>
-          <div className="flex gap-4 overflow-x-auto md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pb-4 -mx-6 px-6 md:mx-0 md:px-0 scrollbar-hide md:overflow-visible">
+          <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide">
             <DiscountCard city="Barcelona" image={barcelonaImg} />
             <DiscountCard city="Sydney" image={sydneyImg} />
             <DiscountCard city="London" image={londonDiscountImg} />
@@ -191,7 +191,7 @@ const Index = () => {
           <p className="text-muted-foreground mb-6 md:mb-8 text-sm md:text-base">
             Discover popular places for unforgettable adventures.
           </p>
-          <div className="flex gap-4 overflow-x-auto md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pb-4 -mx-6 px-6 md:mx-0 md:px-0 scrollbar-hide md:overflow-visible">
+          <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide">
             <InspiredCard city="London" image={londonImg} />
             <InspiredCard city="Berlin" image={berlinImg} />
             <InspiredCard city="Amsterdam" image={amsterdamImg} />
