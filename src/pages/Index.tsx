@@ -250,7 +250,7 @@ const Index = () => {
         </section>
 
         {/* Tell us what you want Section */}
-        <section className="px-6 py-8 md:py-12 bg-white rounded-2xl mx-6 mb-6">
+        <section className="px-6 py-8 md:py-12 bg-white rounded-2xl mb-6">
           <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Tell us what you want</h2>
           
           <div className="relative mb-4 max-w-2xl">
@@ -309,7 +309,7 @@ const Index = () => {
         </section>
 
         {/* Travel Plans Section */}
-        <section className="px-6 py-8 md:py-12 bg-white rounded-2xl mx-6 mb-6">
+        <section className="px-6 py-8 md:py-12 bg-white rounded-2xl mb-6">
           <div className="flex items-center gap-3 mb-3">
             <h2 className="text-2xl md:text-3xl font-bold">Travel Plans</h2>
             <Badge className="bg-primary text-white hover:bg-primary rounded-full px-3 py-1 text-xs font-bold">
@@ -363,7 +363,7 @@ const Index = () => {
         </section>
 
         {/* Recent Searches Section */}
-        <section className="px-6 py-8 md:py-12 bg-white rounded-2xl mx-6 mb-6">
+        <section className="px-6 py-8 md:py-12 bg-white rounded-2xl mb-6">
           <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Recent Searches</h2>
           <div className="space-y-4 md:max-w-2xl">
             <RecentSearchItem
@@ -375,7 +375,7 @@ const Index = () => {
         </section>
 
         {/* Fancy Discount Section */}
-        <section className="px-6 py-8 md:py-12 bg-white rounded-2xl mx-6 mb-6">
+        <section className="px-6 py-8 md:py-12 bg-white rounded-2xl mb-6">
           <h2 className="text-2xl md:text-3xl font-bold mb-2">Fancy a discount?</h2>
           <p className="text-primary font-semibold mb-6 md:mb-8 text-sm md:text-base bg-primary/10 inline-block px-3 py-1 rounded-lg">
             Find the best deals!
@@ -390,7 +390,7 @@ const Index = () => {
         </section>
 
         {/* Get Inspired Section */}
-        <section className="px-6 py-8 md:py-12 md:pb-16 bg-white rounded-2xl mx-6 mb-6">
+        <section className="px-6 py-8 md:py-12 md:pb-16 bg-white rounded-2xl mb-6">
           <h2 className="text-2xl md:text-3xl font-bold mb-2">Get inspired!</h2>
           <p className="text-muted-foreground mb-6 md:mb-8 text-sm md:text-base">
             Discover popular places for unforgettable adventures.
