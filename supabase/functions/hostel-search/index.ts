@@ -384,6 +384,15 @@ Return only the JSON array, no markdown or explanation.`;
             const hostels = mcpResult.result.structuredContent.hostels;
             console.log(`Returning ${hostels.length} hostels with all available fields`);
             
+            // Log facilities for debugging
+            hostels.forEach((h: any, idx: number) => {
+              const facilityCount = h.facilities?.length || 0;
+              const facilityNames = h.facilities?.flatMap((cat: any) => 
+                cat.facilities?.map((f: any) => f.name) || []
+              ).slice(0, 5) || [];
+              console.log(`Hostel ${idx + 1} (${h.name}): ${facilityCount} facility categories, sample: ${facilityNames.join(', ')}`);
+            });
+            
             // Return complete hostel data with all optional fields
             summarizedResult = {
               result: {
