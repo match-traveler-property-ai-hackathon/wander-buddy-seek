@@ -333,29 +333,30 @@ Return only the JSON array, no markdown or explanation.`;
             const hostels = mcpResult.result.structuredContent.results[0].hostels;
             console.log(`Summarizing ${hostels.length} hostels to reduce tokens`);
             
-            // Keep only essential fields to drastically reduce token count
+            // Keep only the exact fields needed - matching frontend mapping
             summarizedResult = {
               result: {
                 structuredContent: {
                   results: [{
                     query: mcpResult.result.structuredContent.results[0].query,
-                    hostels: hostels.slice(0, 15).map((h: any) => ({
+                    hostels: hostels.map((h: any) => ({
                       id: h.id,
                       name: h.name,
-                      overallRating: h.overallRating,
                       lowestPricePerNight: h.lowestPricePerNight,
-                      distance: h.distance,
-                      images: h.images?.slice(0, 1), // Only first image
-                      facilities: h.facilities?.slice(0, 3).map((cat: any) => ({
-                        name: cat.name,
-                        facilities: cat.facilities?.slice(0, 2).map((f: any) => ({ name: f.name }))
-                      }))
+                      images: h.images?.[0] ? [{ 
+                        prefix: h.images[0].prefix,
+                        suffix: h.images[0].suffix 
+                      }] : [],
+                      facilities: h.facilities,
+                      bookingLink: h.bookingLink,
+                      overallRating: h.overallRating,
+                      distance: h.distance
                     }))
                   }]
                 }
               }
             };
-            console.log(`Reduced from full response to ${hostels.slice(0, 15).length} hostels with minimal fields`);
+            console.log(`Reduced to essential fields for ${hostels.length} hostels`);
           }
           
           // Store the FULL result for our response, but only send summarized to Claude
