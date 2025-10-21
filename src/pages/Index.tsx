@@ -97,9 +97,9 @@ const Index = () => {
       distance: "1.2 km from centre",
       price: 25,
       ratingBreakdown: [
-        { category: "Cleanliness", rating: 4.9 },
-        { category: "Location", rating: 4.8 },
-        { category: "Staff", rating: 4.7 }
+        { category: "Cleanliness", rating: 9.8 },
+        { category: "Location", rating: 9.6 },
+        { category: "Staff", rating: 9.4 }
       ],
       bookingLink: undefined
     },
@@ -110,9 +110,9 @@ const Index = () => {
       distance: "0.8 km from centre",
       price: 32,
       ratingBreakdown: [
-        { category: "Atmosphere", rating: 5.0 },
-        { category: "Location", rating: 4.9 },
-        { category: "Facilities", rating: 4.8 }
+        { category: "Atmosphere", rating: 10.0 },
+        { category: "Location", rating: 9.8 },
+        { category: "Facilities", rating: 9.6 }
       ],
       bookingLink: undefined
     },
@@ -123,9 +123,9 @@ const Index = () => {
       distance: "1.5 km from centre",
       price: 28,
       ratingBreakdown: [
-        { category: "Staff", rating: 4.9 },
-        { category: "Value", rating: 4.7 },
-        { category: "Security", rating: 4.6 }
+        { category: "Staff", rating: 9.8 },
+        { category: "Value", rating: 9.4 },
+        { category: "Security", rating: 9.2 }
       ],
       bookingLink: undefined
     },
@@ -136,9 +136,9 @@ const Index = () => {
       distance: "2.1 km from centre",
       price: 30,
       ratingBreakdown: [
-        { category: "Cleanliness", rating: 5.0 },
-        { category: "Facilities", rating: 4.9 },
-        { category: "Atmosphere", rating: 4.8 }
+        { category: "Cleanliness", rating: 10.0 },
+        { category: "Facilities", rating: 9.8 },
+        { category: "Atmosphere", rating: 9.6 }
       ],
       bookingLink: undefined
     },
@@ -149,9 +149,9 @@ const Index = () => {
       distance: "1.8 km from centre",
       price: 27,
       ratingBreakdown: [
-        { category: "Location", rating: 4.8 },
-        { category: "Value", rating: 4.6 },
-        { category: "Character", rating: 4.7 }
+        { category: "Location", rating: 9.6 },
+        { category: "Value", rating: 9.2 },
+        { category: "Character", rating: 9.4 }
       ],
       bookingLink: undefined
     }
@@ -176,7 +176,7 @@ const Index = () => {
             .filter(([key]) => key !== 'overall')
             .map(([category, rating]: [string, any]) => ({
               category: category.charAt(0).toUpperCase() + category.slice(1),
-              rating: typeof rating === 'number' ? rating / 10 : 0
+              rating: typeof rating === 'number' ? rating : 0 // Already 0-10 from API
             }))
             .sort((a, b) => b.rating - a.rating)
             .slice(0, 3)

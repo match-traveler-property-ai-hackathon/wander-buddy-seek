@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MapPin, Star } from "lucide-react";
+import { MapPin, Star, StarHalf } from "lucide-react";
 
 interface RatingBreakdownItem {
   category: string;
@@ -33,6 +33,30 @@ export const HostelCard = ({
     }
   };
 
+  // Convert 1-10 rating to 1-5 stars, rounding to nearest 0.5
+  const getStarRating = (rating: number) => {
+    const stars = Math.round((rating / 2) * 2) / 2; // Round to nearest 0.5
+    return Math.max(0.5, Math.min(5, stars)); // Clamp between 0.5 and 5
+  };
+
+  const renderStars = (score: number) => {
+    const stars = getStarRating(score);
+    const fullStars = Math.floor(stars);
+    const hasHalfStar = stars % 1 !== 0;
+    
+    return (
+      <div className="flex items-center gap-0.5">
+        {[...Array(fullStars)].map((_, i) => (
+          <Star key={`full-${i}`} size={14} className="fill-primary text-primary" />
+        ))}
+        {hasHalfStar && <StarHalf size={14} className="fill-primary text-primary" />}
+        {[...Array(5 - Math.ceil(stars))].map((_, i) => (
+          <Star key={`empty-${i}`} size={14} className="text-muted-foreground" />
+        ))}
+      </div>
+    );
+  };
+
   return (
     <Card 
       className="md:min-w-[320px] md:max-w-[320px] overflow-hidden border-0 shadow-[var(--shadow-card)] rounded-2xl hover:shadow-lg transition-shadow"
@@ -53,10 +77,7 @@ export const HostelCard = ({
               {ratingBreakdown.map((item, index) => (
                 <div key={index} className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">{item.category}</span>
-                  <div className="flex items-center gap-1">
-                    <Star size={14} className="fill-primary text-primary" />
-                    <span className="font-semibold">{item.rating.toFixed(1)}</span>
-                  </div>
+                  {renderStars(item.rating)}
                 </div>
               ))}
             </div>
