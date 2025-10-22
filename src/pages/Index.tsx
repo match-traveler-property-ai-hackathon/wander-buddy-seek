@@ -260,17 +260,15 @@ const Index = () => {
     }
   }, [profile, profileLoading, initialLoadComplete]);
 
-  // Re-fetch recommendations when profile changes (but not on initial load)
+  // Handle profile changes (but not on initial load)
   useEffect(() => {
     if (profile && !profileLoading && initialLoadComplete) {
       if (isFirstProfileLoad) {
-        // Skip search on first profile load
+        // Skip on first profile load
         setIsFirstProfileLoad(false);
       } else {
         // Clear AI search results when switching profiles
         clearAiResults();
-        // Only search when user actively switches profiles
-        performProfileSearch();
         toast({
           title: "Profile switched",
           description: `Now showing recommendations for ${profile.name}`,
