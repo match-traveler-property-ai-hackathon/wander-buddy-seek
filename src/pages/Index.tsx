@@ -88,74 +88,29 @@ const Index = () => {
     switchProfile 
   } = useUserProfile();
 
-  // Default hostels to display initially
-  const defaultHostels = [
-    {
-      name: "Casa Pepe",
-      image: hostel1Img,
-      rating: 4.8,
-      distance: "1.2 km from centre",
-      price: 25,
-      ratingBreakdown: [
-        { category: "Cleanliness", rating: 9.8 },
-        { category: "Location", rating: 9.6 },
-        { category: "Staff", rating: 9.4 }
-      ],
+  // Map image paths from database to actual imports
+  const imageMap: Record<string, string> = {
+    '/src/assets/hostel1.jpg': hostel1Img,
+    '/src/assets/hostel2.jpg': hostel2Img,
+    '/src/assets/hostel3.jpg': hostel3Img,
+    '/src/assets/hostel4.jpg': hostel4Img,
+    '/src/assets/hostel5.jpg': hostel5Img,
+  };
+
+  // Get default hostels from profile or fallback to empty array
+  const defaultHostels = useMemo(() => {
+    if (!profile?.default_hostels) return [];
+    
+    return (profile.default_hostels as any[]).map((hostel: any) => ({
+      name: hostel.name,
+      image: imageMap[hostel.image] || hostel1Img,
+      rating: hostel.rating,
+      distance: hostel.distance,
+      price: hostel.price,
+      ratingBreakdown: hostel.ratingBreakdown,
       bookingLink: undefined
-    },
-    {
-      name: "Mexico City Rooftop",
-      image: hostel2Img,
-      rating: 4.9,
-      distance: "0.8 km from centre",
-      price: 32,
-      ratingBreakdown: [
-        { category: "Atmosphere", rating: 10.0 },
-        { category: "Location", rating: 9.8 },
-        { category: "Facilities", rating: 9.6 }
-      ],
-      bookingLink: undefined
-    },
-    {
-      name: "La Casa Colorida",
-      image: hostel3Img,
-      rating: 4.7,
-      distance: "1.5 km from centre",
-      price: 28,
-      ratingBreakdown: [
-        { category: "Staff", rating: 9.8 },
-        { category: "Value", rating: 9.4 },
-        { category: "Security", rating: 9.2 }
-      ],
-      bookingLink: undefined
-    },
-    {
-      name: "Green Garden Hostel",
-      image: hostel4Img,
-      rating: 4.9,
-      distance: "2.1 km from centre",
-      price: 30,
-      ratingBreakdown: [
-        { category: "Cleanliness", rating: 10.0 },
-        { category: "Facilities", rating: 9.8 },
-        { category: "Atmosphere", rating: 9.6 }
-      ],
-      bookingLink: undefined
-    },
-    {
-      name: "Colonial Charm",
-      image: hostel5Img,
-      rating: 4.6,
-      distance: "1.8 km from centre",
-      price: 27,
-      ratingBreakdown: [
-        { category: "Location", rating: 9.6 },
-        { category: "Value", rating: 9.2 },
-        { category: "Character", rating: 9.4 }
-      ],
-      bookingLink: undefined
-    }
-  ];
+    }));
+  }, [profile]);
 
   // Map MCP response to hostel card format (helper function)
   const mapHostelsToCards = (mcpResponse: any) => {

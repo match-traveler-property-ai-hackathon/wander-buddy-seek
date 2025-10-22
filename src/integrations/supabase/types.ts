@@ -19,6 +19,7 @@ export type Database = {
           age_range: string | null
           budget_range: Json | null
           created_at: string
+          default_hostels: Json | null
           email: string | null
           favorite_hostels: string[] | null
           hostel_preferences: Json | null
@@ -36,6 +37,7 @@ export type Database = {
           age_range?: string | null
           budget_range?: Json | null
           created_at?: string
+          default_hostels?: Json | null
           email?: string | null
           favorite_hostels?: string[] | null
           hostel_preferences?: Json | null
@@ -53,6 +55,7 @@ export type Database = {
           age_range?: string | null
           budget_range?: Json | null
           created_at?: string
+          default_hostels?: Json | null
           email?: string | null
           favorite_hostels?: string[] | null
           hostel_preferences?: Json | null

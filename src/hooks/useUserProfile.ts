@@ -18,6 +18,7 @@ export interface UserProfile {
   budget_range: { min: number; max: number };
   travel_style: string;
   age_range: string;
+  default_hostels?: any[];
 }
 
 // Mock profile for guests/unauthenticated users
@@ -89,7 +90,8 @@ export const useUserProfile = () => {
           preferred_destinations: d.preferred_destinations || [],
           budget_range: (d.budget_range as any) || { min: 20, max: 50 },
           travel_style: d.travel_style || 'backpacker',
-          age_range: d.age_range || '18-30'
+          age_range: d.age_range || '18-30',
+          default_hostels: (d.default_hostels as any) || []
         }));
         
         console.log('Available profiles loaded:', profiles.length);
@@ -120,7 +122,8 @@ export const useUserProfile = () => {
             preferred_destinations: data.preferred_destinations || [],
             budget_range: (data.budget_range as any) || { min: 20, max: 50 },
             travel_style: data.travel_style || 'backpacker',
-            age_range: data.age_range || '18-30'
+            age_range: data.age_range || '18-30',
+            default_hostels: (data.default_hostels as any) || []
           });
           setLoading(false);
           return;
@@ -149,7 +152,8 @@ export const useUserProfile = () => {
             preferred_destinations: data.preferred_destinations || [],
             budget_range: (data.budget_range as any) || { min: 20, max: 50 },
             travel_style: data.travel_style || 'backpacker',
-            age_range: data.age_range || '18-30'
+            age_range: data.age_range || '18-30',
+            default_hostels: (data.default_hostels as any) || []
           });
         }
       } else {
