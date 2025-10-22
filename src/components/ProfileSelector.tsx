@@ -22,12 +22,12 @@ interface ProfileSelectorProps {
 }
 
 const PROFILE_AVATARS: Record<string, string> = {
-  'Emma Rodriguez': profileImg,
-  'Alex Chen': profile2Img,
+  'Emma Rodriguez': profile2Img,
+  'Alex Chen': profileImg,
   'Marco Silva': profile3Img,
-  'Sophie Anderson': profile4Img,
+  'Sophie Anderson': profile5Img,
   'Jake Murphy': profile5Img,
-  'Priya Patel': profileImg,
+  'Priya Patel': profile4Img,
 };
 
 export const ProfileSelector = ({
