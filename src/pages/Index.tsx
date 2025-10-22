@@ -43,6 +43,37 @@ import hostel3Img from "@/assets/hostel3.jpg";
 import hostel4Img from "@/assets/hostel4.jpg";
 import hostel5Img from "@/assets/hostel5.jpg";
 import hostelworldLogo from "@/assets/hostelworld-logo.png";
+// Import all unique hostel images
+import casaPepeImg from "@/assets/hostels/casa-pepe.jpg";
+import mexicoRooftopImg from "@/assets/hostels/mexico-rooftop.jpg";
+import casaColoridaImg from "@/assets/hostels/casa-colorida.jpg";
+import greenGardenImg from "@/assets/hostels/green-garden.jpg";
+import colonialCharmImg from "@/assets/hostels/colonial-charm.jpg";
+import berlinBaseImg from "@/assets/hostels/berlin-base.jpg";
+import amsterdamBackpackersImg from "@/assets/hostels/amsterdam-backpackers.jpg";
+import praguePartyImg from "@/assets/hostels/prague-party.jpg";
+import lisbonSunsetImg from "@/assets/hostels/lisbon-sunset.jpg";
+import barcelonaBeachImg from "@/assets/hostels/barcelona-beach.jpg";
+import londonLuxeImg from "@/assets/hostels/london-luxe.jpg";
+import sydneyHarbourImg from "@/assets/hostels/sydney-harbour.jpg";
+import romeRenaissanceImg from "@/assets/hostels/rome-renaissance.jpg";
+import tokyoCapsuleImg from "@/assets/hostels/tokyo-capsule.jpg";
+import parisChicImg from "@/assets/hostels/paris-chic.jpg";
+import mountainBaseImg from "@/assets/hostels/mountain-base.jpg";
+import coastalSurfImg from "@/assets/hostels/coastal-surf.jpg";
+import jungleEcoImg from "@/assets/hostels/jungle-eco.jpg";
+import desertOasisImg from "@/assets/hostels/desert-oasis.jpg";
+import alpineAdventureImg from "@/assets/hostels/alpine-adventure.jpg";
+import kyotoTraditionalImg from "@/assets/hostels/kyoto-traditional.jpg";
+import marrakechRiadImg from "@/assets/hostels/marrakech-riad.jpg";
+import istanbulOttomanImg from "@/assets/hostels/istanbul-ottoman.jpg";
+import buenosAiresTangoImg from "@/assets/hostels/buenos-aires-tango.jpg";
+import dublinLiteraryImg from "@/assets/hostels/dublin-literary.jpg";
+import baliWellnessImg from "@/assets/hostels/bali-wellness.jpg";
+import goaYogaImg from "@/assets/hostels/goa-yoga.jpg";
+import thailandMeditationImg from "@/assets/hostels/thailand-meditation.jpg";
+import costaRicaWellnessImg from "@/assets/hostels/costa-rica-wellness.jpg";
+import sedonaSpiritualImg from "@/assets/hostels/sedona-spiritual.jpg";
 
 const Index = () => {
   const { toast } = useToast();
@@ -95,6 +126,36 @@ const Index = () => {
     '/src/assets/hostel3.jpg': hostel3Img,
     '/src/assets/hostel4.jpg': hostel4Img,
     '/src/assets/hostel5.jpg': hostel5Img,
+    '/src/assets/hostels/casa-pepe.jpg': casaPepeImg,
+    '/src/assets/hostels/mexico-rooftop.jpg': mexicoRooftopImg,
+    '/src/assets/hostels/casa-colorida.jpg': casaColoridaImg,
+    '/src/assets/hostels/green-garden.jpg': greenGardenImg,
+    '/src/assets/hostels/colonial-charm.jpg': colonialCharmImg,
+    '/src/assets/hostels/berlin-base.jpg': berlinBaseImg,
+    '/src/assets/hostels/amsterdam-backpackers.jpg': amsterdamBackpackersImg,
+    '/src/assets/hostels/prague-party.jpg': praguePartyImg,
+    '/src/assets/hostels/lisbon-sunset.jpg': lisbonSunsetImg,
+    '/src/assets/hostels/barcelona-beach.jpg': barcelonaBeachImg,
+    '/src/assets/hostels/london-luxe.jpg': londonLuxeImg,
+    '/src/assets/hostels/sydney-harbour.jpg': sydneyHarbourImg,
+    '/src/assets/hostels/rome-renaissance.jpg': romeRenaissanceImg,
+    '/src/assets/hostels/tokyo-capsule.jpg': tokyoCapsuleImg,
+    '/src/assets/hostels/paris-chic.jpg': parisChicImg,
+    '/src/assets/hostels/mountain-base.jpg': mountainBaseImg,
+    '/src/assets/hostels/coastal-surf.jpg': coastalSurfImg,
+    '/src/assets/hostels/jungle-eco.jpg': jungleEcoImg,
+    '/src/assets/hostels/desert-oasis.jpg': desertOasisImg,
+    '/src/assets/hostels/alpine-adventure.jpg': alpineAdventureImg,
+    '/src/assets/hostels/kyoto-traditional.jpg': kyotoTraditionalImg,
+    '/src/assets/hostels/marrakech-riad.jpg': marrakechRiadImg,
+    '/src/assets/hostels/istanbul-ottoman.jpg': istanbulOttomanImg,
+    '/src/assets/hostels/buenos-aires-tango.jpg': buenosAiresTangoImg,
+    '/src/assets/hostels/dublin-literary.jpg': dublinLiteraryImg,
+    '/src/assets/hostels/bali-wellness.jpg': baliWellnessImg,
+    '/src/assets/hostels/goa-yoga.jpg': goaYogaImg,
+    '/src/assets/hostels/thailand-meditation.jpg': thailandMeditationImg,
+    '/src/assets/hostels/costa-rica-wellness.jpg': costaRicaWellnessImg,
+    '/src/assets/hostels/sedona-spiritual.jpg': sedonaSpiritualImg,
   };
 
   // Get default hostels from profile or fallback to empty array
