@@ -8,6 +8,10 @@ export const useMcpHostelSearch = () => {
   const [profileRecommendations, setProfileRecommendations] = useState<any>(null);
   const [aiSearchResults, setAiSearchResults] = useState<any>(null);
 
+  const clearAiResults = () => {
+    setAiSearchResults(null);
+  };
+
   const searchHostels = async (query: string, profileBased: boolean = false) => {
     if (!query.trim()) return { success: false, message: 'Empty query' };
 
@@ -144,6 +148,7 @@ export const useMcpHostelSearch = () => {
     searchStage,
     searchError,
     profileRecommendations,
-    aiSearchResults
+    aiSearchResults,
+    clearAiResults
   };
 };

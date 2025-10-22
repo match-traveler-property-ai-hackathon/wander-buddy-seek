@@ -110,7 +110,8 @@ const Index = () => {
     searchStage,
     searchError,
     profileRecommendations,
-    aiSearchResults
+    aiSearchResults,
+    clearAiResults
   } = useMcpHostelSearch();
   const { 
     profile, 
@@ -266,6 +267,8 @@ const Index = () => {
         // Skip search on first profile load
         setIsFirstProfileLoad(false);
       } else {
+        // Clear AI search results when switching profiles
+        clearAiResults();
         // Only search when user actively switches profiles
         performProfileSearch();
         toast({
