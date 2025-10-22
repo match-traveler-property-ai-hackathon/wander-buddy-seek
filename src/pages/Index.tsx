@@ -74,6 +74,27 @@ import goaYogaImg from "@/assets/hostels/goa-yoga.jpg";
 import thailandMeditationImg from "@/assets/hostels/thailand-meditation.jpg";
 import costaRicaWellnessImg from "@/assets/hostels/costa-rica-wellness.jpg";
 import sedonaSpiritualImg from "@/assets/hostels/sedona-spiritual.jpg";
+// Import new generated images
+import lisbonWorkspaceImg from "@/assets/hostels/lisbon-workspace.jpg";
+import pragueDigitalImg from "@/assets/hostels/prague-digital.jpg";
+import budapestNomadImg from "@/assets/hostels/budapest-nomad.jpg";
+import barcelonaPartyImg from "@/assets/hostels/barcelona-party.jpg";
+import coastalSurfNewImg from "@/assets/hostels/coastal-surf-new.jpg";
+import lisbonSocialImg from "@/assets/hostels/lisbon-social.jpg";
+import alpineNewImg from "@/assets/hostels/alpine-new.jpg";
+import mountainExplorerImg from "@/assets/hostels/mountain-explorer.jpg";
+import patagoniaTrekImg from "@/assets/hostels/patagonia-trek.jpg";
+import casaPepeNewImg from "@/assets/hostels/casa-pepe-new.jpg";
+import casaColoridaNewImg from "@/assets/hostels/casa-colorida-new.jpg";
+import greenGardenNewImg from "@/assets/hostels/green-garden-new.jpg";
+import romeRenaissanceNewImg from "@/assets/hostels/rome-renaissance-new.jpg";
+import kyotoTraditionalNewImg from "@/assets/hostels/kyoto-traditional-new.jpg";
+import istanbulOttomanNewImg from "@/assets/hostels/istanbul-ottoman-new.jpg";
+import marrakechRiadNewImg from "@/assets/hostels/marrakech-riad-new.jpg";
+import londonLuxeNewImg from "@/assets/hostels/london-luxe-new.jpg";
+import tokyoCapsuleNewImg from "@/assets/hostels/tokyo-capsule-new.jpg";
+import amsterdamDesignImg from "@/assets/hostels/amsterdam-design.jpg";
+import sydneyHarbourNewImg from "@/assets/hostels/sydney-harbour-new.jpg";
 
 const Index = () => {
   const { toast } = useToast();
@@ -157,21 +178,50 @@ const Index = () => {
     '/src/assets/hostels/thailand-meditation.jpg': thailandMeditationImg,
     '/src/assets/hostels/costa-rica-wellness.jpg': costaRicaWellnessImg,
     '/src/assets/hostels/sedona-spiritual.jpg': sedonaSpiritualImg,
+    // New generated images
+    'lisbon-workspace.jpg': lisbonWorkspaceImg,
+    'prague-digital.jpg': pragueDigitalImg,
+    'budapest-nomad.jpg': budapestNomadImg,
+    'barcelona-party.jpg': barcelonaPartyImg,
+    'coastal-surf-new.jpg': coastalSurfNewImg,
+    'lisbon-social.jpg': lisbonSocialImg,
+    'alpine-new.jpg': alpineNewImg,
+    'mountain-explorer.jpg': mountainExplorerImg,
+    'patagonia-trek.jpg': patagoniaTrekImg,
+    'casa-pepe-new.jpg': casaPepeNewImg,
+    'casa-colorida-new.jpg': casaColoridaNewImg,
+    'green-garden-new.jpg': greenGardenNewImg,
+    'rome-renaissance-new.jpg': romeRenaissanceNewImg,
+    'kyoto-traditional-new.jpg': kyotoTraditionalNewImg,
+    'istanbul-ottoman-new.jpg': istanbulOttomanNewImg,
+    'marrakech-riad-new.jpg': marrakechRiadNewImg,
+    'london-luxe-new.jpg': londonLuxeNewImg,
+    'tokyo-capsule-new.jpg': tokyoCapsuleNewImg,
+    'amsterdam-design.jpg': amsterdamDesignImg,
+    'sydney-harbour-new.jpg': sydneyHarbourNewImg,
   };
 
   // Get default hostels from profile or fallback to empty array
   const defaultHostels = useMemo(() => {
     if (!profile?.default_hostels) return [];
     
-    return (profile.default_hostels as any[]).map((hostel: any) => ({
-      name: hostel.name,
-      image: imageMap[hostel.image] || hostel1Img,
-      rating: hostel.rating,
-      distance: hostel.distance,
-      price: hostel.price,
-      ratingBreakdown: hostel.ratingBreakdown,
-      bookingLink: undefined
-    }));
+    return (profile.default_hostels as any[]).map((hostel: any) => {
+      // Try to resolve image by checking both full path and just filename
+      const imagePath = hostel.image;
+      const resolvedImage = imageMap[imagePath] || 
+                           imageMap[`/src/assets/hostels/${imagePath}`] || 
+                           hostel1Img;
+      
+      return {
+        name: hostel.name,
+        image: resolvedImage,
+        rating: hostel.rating,
+        distance: hostel.distance,
+        price: hostel.price,
+        ratingBreakdown: hostel.ratingBreakdown,
+        bookingLink: undefined
+      };
+    });
   }, [profile]);
 
   // Map MCP response to hostel card format (helper function)
