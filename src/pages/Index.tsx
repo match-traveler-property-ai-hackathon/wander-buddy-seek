@@ -148,10 +148,12 @@ const Index = () => {
   // Profile recommendations for "Your Recommendations" section
   const recommendedHostels = useMemo(() => {
     console.log('Profile Recommendations:', profileRecommendations);
+    console.log('Default Hostels:', defaultHostels);
     const mapped = mapHostelsToCards(profileRecommendations);
     console.log('Mapped recommendedHostels:', mapped);
-    return mapped || defaultHostels;
-  }, [profileRecommendations]);
+    // Use mapped results if available and not empty, otherwise use default hostels from profile
+    return (mapped && mapped.length > 0) ? mapped : defaultHostels;
+  }, [profileRecommendations, defaultHostels]);
 
   // AI search results for "Ask AI" section
   const aiHostels = useMemo(() => {
