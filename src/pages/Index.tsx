@@ -330,19 +330,15 @@ const Index = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6 md:mb-8">
             <div className="flex items-center gap-4">
-              <div className="flex flex-col items-start gap-3">
-                <div className="flex items-center gap-4">
-                  <img 
-                    src={hostelworldLogo} 
-                    alt="Hostelworld" 
-                    className="w-10 h-10 md:w-12 md:h-12"
-                  />
-                  <h1 className="text-white text-2xl md:text-4xl font-bold">
-                    Meet your people.
-                  </h1>
-                </div>
-                <DesktopNavigation />
-              </div>
+              <DesktopNavigation />
+              <img 
+                src={hostelworldLogo} 
+                alt="Hostelworld" 
+                className="w-10 h-10 md:w-12 md:h-12"
+              />
+              <h1 className="text-white text-2xl md:text-4xl font-bold">
+                Meet your people.
+              </h1>
             </div>
             <ProfileSelector
               currentProfile={profile}
