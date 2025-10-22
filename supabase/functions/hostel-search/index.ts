@@ -366,7 +366,6 @@ Return only the JSON array, no markdown or explanation.`;
     console.log('Claude response:', JSON.stringify(data, null, 2));
 
     // Step 4: Handle tool calls if Claude wants to use MCP tools
-    let finalContent = '';
     let toolResults: any[] = [];
     
     if (data.stop_reason === 'tool_use') {
@@ -461,74 +460,7 @@ Return only the JSON array, no markdown or explanation.`;
         }
       }
       
-      // Send tool results back to Claude for sorting/formatting
-      console.log('Stage: Sorting - Sending results to Claude for sorting and formatting...');
-      const finalRequest = {
-        model: 'claude-sonnet-4-5',
-        max_tokens: 4096,
-        system: `${systemPrompt}\n\nIMPORTANT: 
-1. Sort the hostels based on how well they match the user's request (consider rating, price, distance, and relevant facilities)
-2. For EACH hostel, write a detailed, specific explanation in the "reason" field explaining why it ranks highly
-3. Reference actual data points from the hostel (ratings, distance, price, facilities, etc.)
-4. Make each reason unique and relevant to that specific hostel
-5. Return the formatted JSON array as specified in the system prompt - DO NOT return raw MCP data`,
-        messages: [
-          {
-            role: 'user',
-            content: query
-          },
-          {
-            role: 'assistant',
-            content: data.content
-          },
-          {
-            role: 'user',
-            content: toolResults
-          }
-        ],
-        tools: mcpTools
-      };
-      
-      const finalResponse = await fetchWithRetry(
-        'https://api.anthropic.com/v1/messages', 
-        {
-          method: 'POST',
-          headers: {
-            'x-api-key': ANTHROPIC_API_KEY,
-            'anthropic-version': '2023-06-01',
-            'content-type': 'application/json',
-          },
-          body: JSON.stringify(finalRequest),
-        },
-        3,
-        false
-      );
-      
-      if (!finalResponse.ok) {
-        const errorText = await finalResponse.text();
-        console.error('Claude sorting API error:', finalResponse.status, errorText);
-        
-        if (finalResponse.status === 429) {
-          return new Response(JSON.stringify({ 
-            error: 'Rate limit exceeded. Please wait a moment and try again.',
-            rateLimited: true
-          }), {
-            status: 429,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
-        }
-        
-        // For server errors (502, 503, etc.), fallback to unsorted results
-        console.warn(`Claude sorting failed with ${finalResponse.status}. Returning unsorted results as fallback.`);
-        // Don't throw - we'll use the unsorted MCP results as fallback
-      } else {
-        const finalData = await finalResponse.json();
-        console.log('Claude sorted results received');
-        
-        // Extract the text content from final response
-        const textBlock = finalData.content.find((block: any) => block.type === 'text');
-        finalContent = textBlock?.text || '';
-      }
+      console.log('Stage: Complete - Raw MCP results ready to return');
     }
 
     // Extract MCP response from tool results for frontend
